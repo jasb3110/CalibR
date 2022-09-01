@@ -15,11 +15,13 @@ It showed the input table. It's too important to sort data this way.
 |:--:| 
 |*Table. Input table of Mejillones core (Guiñez et al. 2014)*|
 
-After that, you are able to look the format of outcome plots.
+After that, you can look at the format of the outcome plots. Axis x is a range of calibrated age and axis y is the density probability of calibration. The black line means the maximum probability calibrated age, the green line median means the median calibrated age and the gray line means the mean calibrated age.
 
 |[![Plot.](calout/mejillones/Core%20mejillones%20sample%20on%2018cm.png)](https://github.com/jasb3110/CalibR/blob/b761fbb3f5b69a151fd9a74449f0d9401fd57454/calout/mejillones/Core%20mejillones%20sample%20on%2018cm.png?raw=true)|
 |:--:| 
 |*Picture. Outcome plot of sample on 18 cm (Guiñez et al. 2014)*|
+
+Finally, This script is created an outcome table where you are able to find the maximum, median, and mean calibrate age in columns. the outcome table will be saved together with plots.
 
 ## Instruction
 
