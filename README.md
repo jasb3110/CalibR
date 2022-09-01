@@ -5,7 +5,6 @@
 - [R code](#r-code)
 - [Reference](#reference)
 
-
 ## Proposal 
 This script tries to replicate the radiocarbon calibration of software Calib 8.02 [(1)](#reference)for any Operative system in R programing. therefore, the Data input is the same as Calib 8.02 input. Also, it is able to plot and create output data in a file in the format .csv. Bellow, I attached this script and example of published data Guiñez et al, 2014 [(2)](#reference).
 
@@ -191,7 +190,6 @@ print(paste0("Calibration finished of ",dd$Lab[i],"!!!"))
 beep(8)#mario bross sound
 ################################################################################
 ```
-
 ## Reference
 
 Stuiver, M., & Reimer, P. J. (1993). EXTENDED 14C DATA BASE AND REVISED CALIB 3.014C AGE CALIBRATION PROGRAM. Radiocarbon, 35(1), 215–230. https://doi.org/10.14210/bjast.v17.n2.pNB5-8
