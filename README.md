@@ -13,7 +13,7 @@ It showed the input table. It's too important to sort data this way.
 
 |[![Table.](input.png)](https://github.com/jasb3110/CalibR/blob/b761fbb3f5b69a151fd9a74449f0d9401fd57454/input.png?raw=true)|
 |:--:| 
-|*Table. Input table of Mejillones core (Guiñez et al. 2014)*|
+|*Table. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*|
 
 After that, you can look at the format of the outcome plots. Axis x is a range of calibrated age and axis y is the density probability of calibration. The black, green, and gray lines mean the maximum probability, median, and mean calibrated age, respectively. Also, the blue and red lines mean calibration´s limit according to One standard deviation (one sigma: 68%). sigma value can be changed if you would.
 
