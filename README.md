@@ -12,7 +12,7 @@ This script tries to replicate the radiocarbon calibration of software Calib 8.0
 ```markdown
 #########################################################################
 #datation
-dct=" ~/directory.file/"
+dct=" ~/CalibR/"#name of directory
 setwd(dct)#directory
 library("IntCal")
 library("ggplot2")
