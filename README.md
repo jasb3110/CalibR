@@ -2,11 +2,31 @@
 
 ## Contents
 - [Proposal](#proposal)
+- [Instruction](#instruction)
 - [R code](#r-code)
 - [Reference](#reference)
 
 ## Proposal 
 This script tries to replicate the radiocarbon calibration of software Calib 8.02 [(1)](#reference)for any Operative system in R programing. therefore, the Data input is the same as Calib 8.02 input. Also, it is able to plot and create output data in a file in the format .csv. Bellow, I attached this script and example of published data Guiñez et al, 2014 [(2)](#reference).
+
+It showed the input table. It's too important to sort data this way.
+
+|[![Table.](input.png)](https://github.com/jasb3110/CalibR/blob/b761fbb3f5b69a151fd9a74449f0d9401fd57454/input.png?raw=true)|
+|:--:| 
+|*Table. Input table of Mejillones core (Guiñez et al. 2014)*|
+
+After that, you are able to look the format of outcome plots.
+
+|[![Plot.](Core%20mejillones%20sample%20on%2018cm.png)](https://github.com/jasb3110/CalibR/blob/b761fbb3f5b69a151fd9a74449f0d9401fd57454/calout/mejillones/Core%20mejillones%20sample%20on%2018cm.png?raw=true)|
+|:--:| 
+|*Picture. Outcome plot of sample on 18 cm (Guiñez et al. 2014)*|
+
+## Instruction
+
+1. Select the whole script and pulse Ctrl+ Enter.
+2. To wait for its outcomes when you will hear Mario Bross sound the means it is finished. 
+3. Bon appetit!!
+
 
 ## R code
 ```markdown
