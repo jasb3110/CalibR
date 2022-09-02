@@ -1,5 +1,7 @@
 # CalibR
 
+Its R-script to the same outcome Calib 8.02 for radiocarbon calibration.
+
 ## Contents
 - [Proposal](#proposal)
 - [Instruction](#instruction)
