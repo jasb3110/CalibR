@@ -42,6 +42,7 @@ library("IntCal")
 library("ggplot2")
 library("ggh4x")
 library("beepr")
+library("gridExtra")
 
 # outcome folders
 outy="calout"
@@ -51,10 +52,17 @@ if (file.exists(outy)) {
   dir.create(outy)
 }
 
+############
+#fix to function use Marine20 per one year
+#add Marine20 modificated
+#to copy two lines which are under here and then paste in pop-up script
+#  else if (tolower(cc) == "marine20a")
+#   fl <- "3Col_marine20a.14C"
+#trace(ccurve,edit = TRUE)
+#########################################################
 #INPUT
 #data is gonna calibrate
-d=read.csv("mejillones.csv",sep=";",dec=".",header = TRUE)#example 
-
+d=read.csv("mejillones.csv",sep=";",dec=".",header = TRUE)
 ################################
 dd<- d[-c(1),]
 
@@ -203,7 +211,7 @@ for( i in 1:length(dd$Sample)){
     theme(xis.ticks.length=unit(0.25,"cm"),ggh4x.axis.ticks.length.minor = rel(0.5),axis.ticks = element_line(size = 2),ggh4x.axis.ticks.length.minor = rel(0.5),axis.text.x=element_text(size=11,colour = "black",face="bold",angle=45, hjust=1),axis.text.y=element_text(size=11,colour = "black",face="bold",hjust=1),
           axis.title=element_text(size=14,face="bold"),title = element_text(size=16,colour = "black",face="bold"))
   
-    ggsave(paste0("Core ",dd$Lab[i]," sample on ",dd$Depth[i],"cm.png"), dpi = 900,   width = 250,
+    ggsave(paste0("Core ",dd$Lab[i],"-",dd$Sample[i]," sample on ",dd$Depth[i],"cm.png"), dpi = 900,   width = 250,
            height = 159,unit="mm",plot =plot)  
     }
 }    
