@@ -15,25 +15,21 @@ This script tries to replicate the radiocarbon calibration of software Calib 8.0
 
 It showed the input table. It's too important to sort data this way.
 
-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
-| [![Table 1.](calout/mejillones/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/7012b21752fe3f6cc8e4e240c1f24967daf117af/calout/mejillones/mejillones.input.png) |
-+:============================================================================================================================================================================:+
-| *Table 1. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*                                                                                  |
-+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|                                                                                                                                                                                                                                                                                                                                                                                                                                                              |
+|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| [![Table 1.](calout/mejillones/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/7012b21752fe3f6cc8e4e240c1f24967daf117af/calout/mejillones/mejillones.input.png) :============================================================================================================================================================================:+ *Table 1. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)* |
 
 After that, you can look at the format of the outcome plots. Axis x is a range of calibrated age and axis y is the density probability of calibration. The black, green, and gray lines mean the maximum probability, median, and mean calibrated age, respectively. Also, the blue and red lines mean calibration´s limit according to One standard deviation (one sigma: 68%). sigma value can be changed if you would.
 
-+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
 | [![Plot.](calout/mejillones/Core%20mejillones%20sample%20on%2018cm.png)](https://github.com/jasb3110/CalibR/blob/43c12400c54612b79b19c9f4f14609ebdb794bc5/mejillones.input.png) |
-+:===============================================================================================================================================================================:+
-| *Picture. Outcome plot of sample on 18 cm (Guiñez et al. 2014)*                                                                                                                 |
-+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------+
+|:-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------:|
+|                                                         *Picture. Outcome plot of sample on 18 cm (Guiñez et al. 2014)*                                                         |
 
 Finally, This script is created an outcome table where you are able to find the maximum, median, and mean calibrate age in columns. the outcome table will be saved together with plots and you can see output table [(Table 2)]().
 
-| [![Table 2.](calout/mejillones/mejillones.output.png)](https://github.com/jasb3110/CalibR/blob/17ae52b2e6d41f845293a142c233101ed213418c/calout/mejillones/mejillones.output.png) |
-+:============================================================================================================================================================================:+
-| *Table 2. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*                                                                                  |
+| [![Table 2.](calout/mejillones/mejillones.output.png)](https://github.com/jasb3110/CalibR/blob/17ae52b2e6d41f845293a142c233101ed213418c/calout/mejillones/mejillones.output.png) \|
+
++:============================================================================================================================================================================:+ \| *Table 2. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)* \|
 
 ## Instruction {#instruction}
 
