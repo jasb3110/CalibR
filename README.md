@@ -3,41 +3,40 @@
 It´s R-script to the same outcome Calib 8.02 for radiocarbon calibration.
 
 ## Contents
+- [Proposal](#proposal)
+- [Instruction](#instruction)
+- [R code](#r-code)
+- [Reference](#reference)
 
--   [Proposal](#proposal)
--   [Instruction](#instruction)
--   [R code](#r-code)
--   [Reference](#reference)
-
-## Proposal {#proposal}
-
+## Proposal 
 This script tries to replicate the radiocarbon calibration of software Calib 8.02 [(1)](#reference) for any Operative system in R programing. therefore, the Data input is the same as Calib 8.02 input. Also, it is able to plot and create output data in a file in the format .csv. Bellow, I attached this script and example of published data Guiñez et al, 2014 [(2)](#reference).
 
 It showed the input table. It's too important to sort data this way.
 
-| [![Table 1.](calout/mejillones/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/7012b21752fe3f6cc8e4e240c1f24967daf117af/calout/mejillones/mejillones.input.png) :============================================================================================================================================================================:+ *Table 1. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)* |
-
+|[![Table 1.](calout/mejillones/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/6e49866716b2bba47d86eabdf2ef2fa9c22cb8f9/calout/mejillones/mejillones.input.png)|
+|:--:| 
+|*Table. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*|
 
 After that, you can look at the format of the outcome plots. Axis x is a range of calibrated age and axis y is the density probability of calibration. The black, green, and gray lines mean the maximum probability, median, and mean calibrated age, respectively. Also, the blue and red lines mean calibration´s limit according to One standard deviation (one sigma: 68%). sigma value can be changed if you would.
 
-|[![Plot.](calout/mejillones/Core%20mejillones%20sample%20on%2018cm.png)](https://github.com/jasb3110/CalibR/blob/43c12400c54612b79b19c9f4f14609ebdb794bc5/mejillones.input.png) |
+|[![Plot.](calout/mejillones/Core%20mejillones%20sample%20on%2018cm.png)](https://github.com/jasb3110/CalibR/blob/43c12400c54612b79b19c9f4f14609ebdb794bc5/mejillones.input.png)|
+|:--:| 
+|*Picture. Outcome plot of sample on 18 cm (Guiñez et al. 2014)*|
 
-| *Picture. Outcome plot of sample on 18 cm (Guiñez et al. 2014)*|
+Finally, This script is created an outcome table where you are able to find the maximum, median, and mean calibrate age in columns. the outcome table will be saved together with plots and output table.
 
-Finally, This script is created an outcome table where you are able to find the maximum, median, and mean calibrate age in columns. the outcome table will be saved together with plots and you can see output table [(Table 2)]().
+|[![Table 2.](calout/mejillones/mejillones.output.png)](https://github.com/jasb3110/CalibR/blob/6e49866716b2bba47d86eabdf2ef2fa9c22cb8f9/calout/mejillones/mejillones.output.png)|
+|:--:| 
+|*Table 2. Output table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*|
 
-| [![Table 2.](calout/mejillones/mejillones.output.png)](https://github.com/jasb3110/CalibR/blob/17ae52b2e6d41f845293a142c233101ed213418c/calout/mejillones/mejillones.output.png)|
-| *Table 2. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)* |
+## Instruction
 
-## Instruction {#instruction}
+1. Select the whole script and pulse Ctrl+ Enter.
+2. To wait for its outcomes when you will hear Mario Bross sound the means it is finished. 
+3. Bon appetit!!
 
-1.  Select the whole script and pulse Ctrl+ Enter.
-2.  To wait for its outcomes when you will hear Mario Bross sound the means it is finished.
-3.  Bon appetit!!
-
-## R code {#r-code}
-
-``` markdown
+## R code
+```markdown
 #########################################################################
 #datation
 dct=" ~/CalibR/"#name of directory
@@ -238,9 +237,8 @@ print(paste0("Calibration finished of ",dd$Lab[i],"!!!"))
 beep(8)#mario bross sound
 ################################################################################
 ```
+## Reference
 
-## Reference {#reference}
+Stuiver, M., & Reimer, P. J. (1993). EXTENDED 14C DATA BASE AND REVISED CALIB 3.014C AGE CALIBRATION PROGRAM. Radiocarbon, 35(1), 215–230. https://doi.org/10.14210/bjast.v17.n2.pNB5-8
 
-Stuiver, M., & Reimer, P. J. (1993). EXTENDED 14C DATA BASE AND REVISED CALIB 3.014C AGE CALIBRATION PROGRAM. Radiocarbon, 35(1), 215--230. <https://doi.org/10.14210/bjast.v17.n2.pNB5-8>
-
-Guiñez, M., Valdés, J., Sifeddine, A., Boussafir, M., & Dávila, P. M. (2014). Anchovy population and ocean-climatic fluctuations in the Humboldt Current System during the last 700 years and their implications. Palaeogeography, Palaeoclimatology, Palaeoecology, 415, 210--224. <https://doi.org/10.1016/j.palaeo.2014.08.026>
+Guiñez, M., Valdés, J., Sifeddine, A., Boussafir, M., & Dávila, P. M. (2014). Anchovy population and ocean-climatic fluctuations in the Humboldt Current System during the last 700 years and their implications. Palaeogeography, Palaeoclimatology, Palaeoecology, 415, 210–224. https://doi.org/10.1016/j.palaeo.2014.08.026
