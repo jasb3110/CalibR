@@ -19,7 +19,7 @@ It showed the input table. It's too important to sort data this way.
 
 After that, you can look at the format of the outcome plots. Axis x is a range of calibrated age and axis y is the density probability of calibration. The black, green, and gray lines mean the maximum probability, median, and mean calibrated age, respectively. Also, the blue and red lines mean calibration´s limit according to One standard deviation (one sigma: 68%). sigma value can be changed if you would.
 
-|[![Plot.](calout/mejillones/Core%20mejillones%20sample%20on%2018cm.png)](https://github.com/jasb3110/CalibR/blob/b761fbb3f5b69a151fd9a74449f0d9401fd57454/calout/mejillones/Core%20mejillones%20sample%20on%2018cm.png?raw=true)|
+|[![Plot.](calout/mejillones/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/7012b21752fe3f6cc8e4e240c1f24967daf117af/calout/mejillones/mejillones.input.png)|
 |:--:| 
 |*Picture. Outcome plot of sample on 18 cm (Guiñez et al. 2014)*|
 
