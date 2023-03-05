@@ -53,16 +53,16 @@ if (file.exists(outy)) {
 }
 
 ############
-#fix to function use Marine20 per one year
-#add Marine20 modificated
-#to copy two lines which are under here and then paste in pop-up script
-#  else if (tolower(cc) == "marine20a")
-#   fl <- "3Col_marine20a.14C"
-#trace(ccurve,edit = TRUE)
-#########################################################
 #INPUT
 #data is gonna calibrate
 d=read.csv("mejillones.csv",sep=";",dec=".",header = TRUE)
+
+#plot input table
+row.names(d)=NULL
+png("input.png",height = 30*nrow(d), width = 75*ncol(d))
+grid.table(d)
+dev.off()
+
 ################################
 dd<- d[-c(1),]
 
@@ -216,6 +216,18 @@ for( i in 1:length(dd$Sample)){
     }
 }    
 #View(dd)
+
+#plot input table
+d1<- d[-c(1),]
+png(paste0(dd$Lab[i],".input.png"),height = 30*nrow(d1), width = 75*ncol(d1))
+grid.table(d1,rows = NULL)
+dev.off()
+
+#plot output table
+png(paste0(dd$Lab[i],".output.png"),height = 30*nrow(dd), width = 75*ncol(dd))
+grid.table(dd,rows = NULL)
+dev.off()
+
 #OUTCOME
 write.csv(dd,paste0(dd$Lab[i],".calibrated.csv"),sep=",",dec=".",col.names = TRUE)
 print(paste0("Calibration finished of ",dd$Lab[i],"!!!"))
