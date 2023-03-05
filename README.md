@@ -13,7 +13,7 @@ This script tries to replicate the radiocarbon calibration of software Calib 8.0
 
 It showed the input table. It's too important to sort data this way.
 
-|[![Table.](mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/7012b21752fe3f6cc8e4e240c1f24967daf117af/calout/mejillones/mejillones.input.png)|
+|[![Table.](calout/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/7012b21752fe3f6cc8e4e240c1f24967daf117af/calout/mejillones/mejillones.input.png)|
 |:--:| 
 |*Table. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*|
 
