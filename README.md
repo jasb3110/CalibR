@@ -234,6 +234,7 @@ dev.off()
 #OUTCOME
 write.csv(dd,paste0(dd$Lab[i],".calibrated.csv"),sep=",",dec=".",col.names = TRUE)
 print(paste0("Calibration finished of ",dd$Lab[i],"!!!"))
+print(paste0(dd$Lab[i]," is calibrated now"))
 beep(8)#mario bross sound
 ################################################################################
 ```
