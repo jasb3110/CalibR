@@ -21,7 +21,7 @@ After that, you can look at the format of the outcome plots. Axis x is a range o
 
 |[![Plot.](calout/mejillones/Core%20mejillones-mejillones-18%20sample%20on%2054cm.png)](https://github.com/jasb3110/CalibR/blob/ba749dcab638c0243d6a7c11ef361c2016970ddb/calout/mejillones/Core%20mejillones-mejillones-18%20sample%20on%2054cm.png)|
 |:--:| 
-|*Picture. Outcome plot of sample on 18 cm (Guiñez et al. 2014)*|
+|*Picture. Outcome plot of sample on 54cm (Guiñez et al. 2014)*|
 
 Finally, This script is created an outcome table where you are able to find the maximum, median, and mean calibrate age in columns. the outcome table will be saved together with plots [(Table 2.)](calout/mejillones/mejillones.output.png) and I attached a function in source [(3)](https://github.com/jasb3110/CalibR/blob/36366a16fc9cf5e4c5f070f9b17be2f357915dc5/calib.R).
 
