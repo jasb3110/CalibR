@@ -38,7 +38,7 @@ Finally, This script is created an outcome table where you are able to find the 
 ## R code
 ```markdown
 #########################################################################
-#datation
+#datation for core which was pulled out off Mejillones
 library("IntCal")
 library("ggplot2")
 library("ggh4x")
