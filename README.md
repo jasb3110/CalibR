@@ -23,7 +23,7 @@ After that, you can look at the format of the outcome plots. Axis x is a range o
 |:--:| 
 |*Picture. Outcome plot of sample on 18 cm (Guiñez et al. 2014)*|
 
-Finally, This script is created an outcome table where you are able to find the maximum, median, and mean calibrate age in columns. the outcome table will be saved together with plots [(Table 2.)](calout/mejillones/mejillones.output.png).
+Finally, This script is created an outcome table where you are able to find the maximum, median, and mean calibrate age in columns. the outcome table will be saved together with plots [(Table 2.)](calout/mejillones/mejillones.output.png) and I attached a function in source [(3)](https://github.com/jasb3110/CalibR/blob/36366a16fc9cf5e4c5f070f9b17be2f357915dc5/calib.R).
 
 |[![Table 2.](calout/mejillones/mejillones.output.png)](https://github.com/jasb3110/CalibR/blob/b4b7f34fe5c1becce1b3b3b20495344bc8da6f60/calout/mejillones/mejillones.output.png)|
 |:--:| 
