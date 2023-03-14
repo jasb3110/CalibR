@@ -292,7 +292,7 @@ dev.off()
 
 colnames(dd)[1:length(l)]=l
 #plot output table
-png(paste0(dd$`Lab code`[1],".output.png"), width = ncol(dd)*500/16, heigh = 180/19*nrow(dd), units = 'mm', res =1200)
+png(paste0(dd$`Lab code`[1],".output.png"), width = ncol(dd)*500/23, heigh = 180/19*nrow(dd), units = 'mm', res =1200)
 grid.table(dd,rows = NULL,theme=myt)
 dev.off()
 
