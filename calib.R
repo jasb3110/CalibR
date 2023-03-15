@@ -1,8 +1,9 @@
 calib.R=function(input=input,sigma=c(.68,.95,.99,"1s","2s","3s","1sigma","2sigma","3sigma"),show.table=c(TRUE,FALSE,T,F,1,0),show.plot=c("minimal","default","both","FALSE",T,F,0,1)){
-  begin=Sys.time()   
-  # License: GPL-2 
-  # Authors: José Solís, March 2023
-  
+  ##################################### 
+  # License: GNU
+  # Author: José Solís, March 2023
+  # email: solisbenites.jose@gmail.com
+  ####################################
   require("IntCal")
   require("ggplot2")
   require("ggh4x")
@@ -11,7 +12,11 @@ calib.R=function(input=input,sigma=c(.68,.95,.99,"1s","2s","3s","1sigma","2sigma
   require("magrittr")
   require("scales")
   require("beepr")
-
+  ###################################
+  begin=Sys.time()#Begining time
+  dd<- input[-c(1),]
+  cat(paste0("To begin to calibrate of ",dd$Lab[1], sep="\n\n"))
+  
   namess=c("Lab","Sample","X14C.BP","X14C.Age.SD","Lab.Error",         
            "Age.Span"           ,"Uncorrected.14C"    ,"Uncorrected.14C.SD" ,"d13C"               ,"d13C.SD",           
            "Delta.R"            ,"Delta.R.SD"         ,"Marine.Carbon"      ,"Description"        ,"CalCurve",          
@@ -31,15 +36,14 @@ calib.R=function(input=input,sigma=c(.68,.95,.99,"1s","2s","3s","1sigma","2sigma
   labely=expression(paste("Density (",10^-3,")"))
   tabless=c(TRUE,FALSE,T,F,1,0)
   plotss=c("minimal","default","both","FALSE",T,F,0,1)
-  
-  
+  labely=expression(paste("Density (",10^-3,")"))
   dct=getwd()#name of directory
   setwd(dct)#directory
 
 # outcome folders
 outy="calout"
 if (file.exists(outy)) {
-  cat("Calout already exists", sep="\n\n")
+  cat("Calout folder already exists", sep="\n\n")
 } else {
   dir.create(outy)
 }
@@ -76,16 +80,14 @@ for(k in 1:ncol(input)){
     }
   }
 }
-
-
 if(length(show.plot)!=1){
   stop("plot value should be one item")
 }else{
   if(sum(plotss!=show.plot,na.rm=T)!=7){
     stop("plot value don´t allowed, just to be minimal, default, both, FALSE, T, F, 0, 1")
   }
-
-dd<- input[-c(1),]
+#######################################  
+#Input variables
 sigma=sigma# 0.68, 0.95, 0.99 >>>one, two, three sigma
 rrr=NULL
 rr=NULL
@@ -98,6 +100,13 @@ rsv=NULL
 sdrsv=NULL
 c14=NULL
 sdc14=NULL
+dd$mean=NA
+dd$lower=NA
+dd$upper=NA
+dd$median=NA
+dd$percent=NA
+dd$max=NA
+dd$error=NA
 
 for(i in 1:length(dd$Sample)){
   rsv=as.numeric(dd$Delta.R[i])
@@ -105,27 +114,15 @@ for(i in 1:length(dd$Sample)){
   c14=as.numeric(dd$X14C.BP[i])
   sdc14=as.numeric(dd$X14C.Age.SD[i])
   if(sum(is.null(c14)==T,is.null(sdc14)==T,na.rm=T)>0){
-    dd$mean[i]=NA
-    dd$lower[i]=NA
-    dd$upper[i]=NA
-    dd$median[i]=NA
-    dd$max[i]=NA
-    dd$error[i]=NA
     next()
   }else{
     if(sum(is.na(c14)==T,is.na(sdc14)==T)>0){
-      dd$mean[i]=NA
-      dd$lower[i]=NA
-      dd$upper[i]=NA
-      dd$median[i]=NA
-      dd$max[i]=NA
-      dd$error[i]=NA
       next()
     }else{
       if((c14-sdc14-rsv-sdrsv)<603|(c14+sdc14+rsv+sdrsv)>50000){ 
         next()
       }else{
-        assign(paste0("rrr",i),calibrate(age=c14, error=sdc14, cc=curv, prob=sigma, yr.steps=1, threshold=5e-01, rounded=1, reservoir=c(rsv,sdrsv),legend.cex = 1))
+        assign(paste0("rrr",i),calibrate(age=c14, error=sdc14, cc=curv, prob=sigma, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv),legend.cex = 1))
         invisible(get(paste0("rrr",i)))
         assign(paste0("r",i),as.data.frame(get(paste0("rrr",i))[1])[1])
         assign(paste0("rr",i),as.data.frame(get(paste0("rrr",i))[1])[2])
@@ -155,18 +152,7 @@ for(i in 1:length(dd$Sample)){
     }
   }
 }
-
-#plotting in low resolution 
-#for( i in 1:length(dd$Sample)){  
-#X11();plot(as.data.frame(get(paste0("rrr",i))[1])[[1]],as.data.frame(get(paste0("rrr",i))[1])[[2]] ,type="l",xlab="Cal BP",ylab="Density",main =dd$Sample[i])
-#  abline(v=dd$mean[i],col="gray")#mean value
-#  abline(v=dd$lower[i],col="blue")# lower value
-#  abline(v=dd$upper[i],col="red")#upper value
-#  abline(v=dd$median[i],col="green")#median value
-#  abline(v=dd$max[i],col="black")#maximum probability value
-#}  
-
-###########################################
+##########################################
 #create or open folder with specified name
 file=paste0(dct,"/",outy)
 setwd(file)
@@ -180,14 +166,11 @@ if (file.exists(f)) {
 folder=paste0(file,"/",f)
 setwd(folder)
 ###########################################
-
-labely=expression(paste("Density (",10^-3,")"))
-
+#Plotting
 c14=NULL
 sdc14=NULL
 rsv=NULL
 sdrsv=NULL
-plot=NULL
 
 for( i in 1:length(dd$Sample)){
   rsv=as.numeric(dd$Delta.R[i])
@@ -196,22 +179,10 @@ for( i in 1:length(dd$Sample)){
   sdc14=as.numeric(dd$X14C.Age.SD[i])
   
   if(sum(is.null(c14)==T,is.null(sdc14)==T,na.rm=T)>0){
-    dd$mean[i]=NA
-    dd$lower[i]=NA
-    dd$upper[i]=NA
-    dd$median[i]=NA
-    dd$max[i]=NA
-    dd$error[i]=NA
     warning("Can not calibrate dates: null value", sep="\n\n")
     next()
   }else{
     if(sum(is.na(c14)==T,is.na(sdc14)==T)>0){
-      dd$mean[i]=NA
-      dd$lower[i]=NA
-      dd$upper[i]=NA
-      dd$median[i]=NA
-      dd$max[i]=NA
-      dd$error[i]=NA
       warning("Can not calibrate dates: NA value", sep="\n\n")
       next()
     }else{
@@ -222,13 +193,13 @@ for( i in 1:length(dd$Sample)){
       }else{
         
         png(paste0(dd$Sample[i],".plot.png"),width = 200, heigh = 200, units = 'mm', res =1200)
-        calibrate(age=c14, error=sdc14, cc=curv, prob=sigma, yr.steps=1, threshold=5e-01, rounded=1, reservoir=c(rsv,sdrsv),legend.cex = 1)
+        calibrate(age=c14, error=sdc14, cc=curv, prob=sigma, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv),legend.cex = 1)
         dev.off()
         
         if(sum(show.plot=="both",show.plot=="default",show.plot==T,show.plot==1,na.rm=T)==1){
           x11()
           plot.new()
-          calibrate(age=c14, error=sdc14, cc=curv, prob=sigma, yr.steps=1, threshold=5e-01, rounded=1, reservoir=c(rsv,sdrsv),legend.cex = 1)
+          calibrate(age=c14, error=sdc14, cc=curv, prob=sigma, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv),legend.cex = 1)
           dev.off()
           }
         
@@ -295,7 +266,6 @@ for( i in 1:length(dd$Sample)){
         ggsave(paste0("Core ",dd$Lab[i],"-",dd$Sample[i]," sample on ",dd$Depth[i],"cm.png"), dpi = 900,   width = 250,
                height = 159,unit="mm",plot =plotting)
         
-        
         if(sum(show.plot=="minimal",show.plot=="both",show.plot==T,show.plot==1,na.rm=T)==1){
           x11()
           plot.new()
@@ -309,30 +279,25 @@ for( i in 1:length(dd$Sample)){
     }
   }
 }
+################################################################################
 #OUTCOME
-l=c("Lab code", "Sample code",expression(phantom()^14*C~"\n(yrs BP)"),           
-    expression(phantom()^14*C~SD~"\n(yrs BP)"), "Lab Error", "Age Span",          
-    "Uncorrected~delta^14*C","Uncorrected~SD~delta^14*C","delta^13*C",              
-    "delta^13*C~SD" ,"Delta*R~(yrs)" ,            
-    "Delta*R~SD~(yrs)","Marine carbon\n(%)","Description","Calibration~curve",          
-    "Depth~(cm)")
 
 dd$mean=round(dd$mean)
 write.csv(dd,paste0(dd$`Lab`[i],".calibrated.csv"),sep=",",dec=".",col.names = TRUE)
 
 #plot input table
-d1<- d[-c(1),]
+d1<- input[-c(1),]
 colnames(d1)=l
 myt=ttheme_minimal(base_size = 12, base_colour = "black", base_family = "",
                    parse = T , padding = unit(c(2,2), "mm"),colhead=list(fg_params = list(parse=TRUE), fontface=4L,bg_params=list(fill="gray90")))
 
-png(paste0(dd$`Lab`[1],".input.png"), width = ncol(d1)*500/16, heigh = 180/19*nrow(d1), units = 'mm', res =1200)
+png(paste0(dd$`Lab`[1],".input.png"), width = 20+ncol(d1)*425/15, heigh = 20+100/19*nrow(d1), units = 'mm', res =1200)
 grid.table(d1,rows = NULL,theme=myt)
 dev.off()
 
 colnames(dd)[1:length(l)]=l
 #plot output table
-png(paste0(dd$`Lab code`[1],".output.png"), width = ncol(dd)*500/16, heigh = 180/19*nrow(dd), units = 'mm', res =1200)
+png(paste0(dd$`Lab code`[1],".output.png"), width = 20+ncol(dd)*525/22, heigh = 20+100/19*nrow(dd), units = 'mm', res =1200)
 grid.table(dd,rows = NULL,theme=myt)
 dev.off()
 
@@ -350,10 +315,9 @@ if(sum(tabless!=show.table,na.rm=T)!=3){
   }
   }  
  }
- 
 beep(8)#mario bros sound
 setwd(dct)
-end=Sys.time() 
+end=Sys.time()#ending time
 tem=end-begin
 cat("Working time was estimated how", sep="\n\n")
 print(tem)
