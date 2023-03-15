@@ -1,8 +1,3 @@
----
-output:
-  pdf_document: default
-  html_document: default
----
 # CalibR
 
 It´s R-script to the same outcome Calib 8.02 for radiocarbon calibration.
@@ -40,6 +35,10 @@ Finally, This script is created an outcome table where you are able to find the 
 1. Select the whole script and pulse Ctrl+ Enter.
 2. To wait for its outcomes when you will hear Mario Bross sound the means it is finished. 
 3. Bon appetit!!
+
+### WARNING:
+
+It could be possible some plotting which were distorted. So that, you should adapt this script to improve margin,resolution or font of picture.
 
 ## R code
 ```markdown

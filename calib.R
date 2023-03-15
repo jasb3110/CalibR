@@ -297,6 +297,7 @@ dev.off()
 
 colnames(dd)[1:length(l)]=l
 #plot output table
+dd$percent=round(dd$percent)
 png(paste0(dd$`Lab code`[1],".output.png"), width = 20+ncol(dd)*525/22, heigh = 20+100/19*nrow(dd), units = 'mm', res =1200)
 grid.table(dd,rows = NULL,theme=myt)
 dev.off()
