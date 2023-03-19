@@ -81,7 +81,6 @@ begin=Sys.time()#Begining time
   dd<- d[-c(1),]
   cat(paste0("To begin to calibrate of ",dd$Lab[1], sep="\n\n"))
 
-#input variable
 a=.68# 0.68, 0.95, 0.99 >>>one, two, three sigma
 rrr=NULL
 rr=NULL
@@ -102,6 +101,14 @@ dd$median=NA
 dd$percent=NA
 dd$max=NA
 dd$error=NA
+
+labely=expression(paste("Density (",10^-3,")"))
+l=c("Lab code", "Sample code",expression(phantom()^14*C~"\n(yrs BP)"),           
+    expression(phantom()^14*C~SD~"\n(yrs BP)"), "Lab Error", "Age Span",          
+    "Uncorrected~delta^14*C","Uncorrected~SD~delta^14*C","delta^13*C",              
+    "delta^13*C~SD" ,"Delta*R~(yrs)" ,            
+    "Delta*R~SD~(yrs)","Marine carbon\n(%)","Description","Calibration~curve",          
+    "Depth~(cm)")
 
 for(i in 1:length(dd$Sample)){
   rsv=as.numeric(dd$Delta.R[i])
@@ -148,6 +155,16 @@ for(i in 1:length(dd$Sample)){
 }
 
 dout=as.data.frame(dd)
+#plotting in low resolution 
+#for( i in 1:length(dd$Sample)){  
+#X11();plot(as.data.frame(get(paste0("rrr",i))[1])[[1]],as.data.frame(get(paste0("rrr",i))[1])[[2]] ,type="l",xlab="Cal BP",ylab="Density",main =dd$Sample[i])
+#  abline(v=dd$mean[i],col="gray")#mean value
+#  abline(v=dd$lower[i],col="blue")# lower value
+#  abline(v=dd$upper[i],col="red")#upper value
+#  abline(v=dd$median[i],col="green")#median value
+#  abline(v=dd$max[i],col="black")#maximum probability value
+#}  
+
 ###########################################
 #create or open folder with specified name
 file=paste0(dct,"/",outy)
@@ -163,20 +180,10 @@ folder=paste0(file,"/",f)
 setwd(folder)
 ###########################################
 #Plotting
-
-labely=expression(paste("Density (",10^-3,")"))
-l=c("Lab code", "Sample code",expression(phantom()^14*C~"\n(yrs BP)"),           
-expression(phantom()^14*C~SD~"\n(yrs BP)"), "Lab Error", "Age Span",          
-"Uncorrected~delta^14*C","Uncorrected~SD~delta^14*C","delta^13*C",              
-"delta^13*C~SD" ,"Delta*R~(yrs)" ,            
-"Delta*R~SD~(yrs)","Marine carbon\n(%)","Description","Calibration~curve",          
-"Depth~(cm)")
-
 c14=NULL
 sdc14=NULL
 rsv=NULL
 sdrsv=NULL
-plot=NULL
 
 for( i in 1:length(dd$Sample)){
   rsv=as.numeric(dd$Delta.R[i])
@@ -203,7 +210,13 @@ for( i in 1:length(dd$Sample)){
           
           dr=as.data.frame(get(paste0("rrr",i))[1])
           dr[[2]]=1000*dr[[2]]
-        
+          
+          if(sum(is.na(dd$Depth[i]),is.null(dd$Depth[i]),dd$Depth[i]=="",na.rm = T)>0){
+          label.name=paste0(dd$Lab[i],"-",dd$Sample[i]) 
+          }else{
+          label.name=paste0(dd$Lab[i],"-",dd$Sample[i]," sample on ",dd$Depth[i],"cm")  
+          }
+          
           plot=ggplot(data=dr, aes(x=dr[[1]], y=dr[[2]])) + geom_line()+
                 theme_classic()+
                 
@@ -221,7 +234,7 @@ for( i in 1:length(dd$Sample)){
                                  yend =dr$V2[which(dr$cal.BP==dd$lower[i])][1],
                                  x=max(dr$cal.BP),
                                  xend=dd$lower[i]),color = "blue", size=.5)+
-                annotate("text",x=max(dr$cal.BP)*.5+dd$lower[i]*.5,y=dr$V2[which(dr$cal.BP==dd$lower[i])][1]*.95,                         label="Lower",size = 3,col="blue")+
+                annotate("text",x=max(dr$cal.BP)*.5+dd$lower[i]*.5,y=dr$V2[which(dr$cal.BP==dd$lower[i])][1]*.95,label="Lower",size = 3,col="blue")+
              
                 geom_segment(aes(y =0,
                                  yend =dr$V2[which(dr$cal.BP==dd$upper[i])][1],
@@ -233,7 +246,7 @@ for( i in 1:length(dd$Sample)){
                                  x=min(dr$cal.BP),
                                  xend=dd$upper[i]),color = "red", size=.5)+
                 
-                annotate("text",x=min(dr$cal.BP)*.5+dd$upper[i]*.5,y=dr$V2[which(dr$cal.BP==dd$upper[i])][1]*.95,                          label="Upper",size = 3,col="red")+
+                annotate("text",x=min(dr$cal.BP)*.5+dd$upper[i]*.5,y=dr$V2[which(dr$cal.BP==dd$upper[i])][1]*.95,label="Upper",size = 3,col="red")+
             
                 
                 geom_segment(aes(y =0,
@@ -252,22 +265,22 @@ for( i in 1:length(dd$Sample)){
                 
                 scale_x_continuous(limits = c(.99*min(dr$cal.BP),1.01*max(dr$cal.BP)),breaks =scales::pretty_breaks(n = 5),guide = "axis_minor")+
                 scale_y_continuous(limits = c(0,1.01*max(dr$V2)),breaks =scales::pretty_breaks(n = 5),guide = "axis_minor")+
-                annotate("text",x=quantile(dr[[1]])[4]*.5+quantile(dr[[1]])[5]*.5,y=quantile(dr[[2]])[5]*.99*1.01,label=paste0(dd$Lab[i]," sample on ",dd$Depth[i],"cm"), size = 4,col="black")+
+                annotate("text",x=quantile(dr[[1]])[4]*.5+quantile(dr[[1]])[5]*.5,y=quantile(dr[[2]])[5]*.99*1.01,label=label.name, size = 4,col="black")+
                 annotate("text",x=quantile(dr[[1]])[4]*.5+quantile(dr[[1]])[5]*.5,y=quantile(dr[[2]])[5]*.96*1.01,label=paste0("Cal.age: ",dd$max[i],"\u00B1",dd$error[i]), size = 4,col="black")+
                 annotate("text",x=quantile(dr[[1]])[4]*.5+quantile(dr[[1]])[5]*.5,y=quantile(dr[[2]])[5]*.93*1.01,label=paste0("\u0394R = ",dd$Delta.R[i],"\u00B1",dd$Delta.R.SD[i]), size = 4,col="black")+
-                annotate("text",x=quantile(dr[[1]])[4]*.5+quantile(dr[[1]])[5]*.5,y=quantile(dr[[2]])[5]*.90*1.01,label=paste0("Probability: ",trunc(100*dd$percent[i])/100,"%"), size = 4,col="black")+
-                annotate("text",x=quantile(dr[[1]])[4]*.5+quantile(dr[[1]])[5]*.5,y=quantile(dr[[2]])[5]*.87*1.01,label=paste0("Cal. curve: ",curv), size = 4,col="black")+
+                annotate("text",x=quantile(dr[[1]])[4]*.5+quantile(dr[[1]])[5]*.5,y=quantile(dr[[2]])[5]*.90*1.01,label=paste0("Probability: ",round(dd$percent[i],2),"%"), size = 4,col="black")+
+                annotate("text",x=quantile(dr[[1]])[4]*.5+quantile(dr[[1]])[5]*.5,y=quantile(dr[[2]])[5]*.87*1.01,label=paste0("Cal. curve: ",curve), size = 4,col="black")+
                 labs(title=paste0("Relative probability of sample "),x ="Cal yr BP", y = labely)
                 theme(xis.ticks.length=unit(0.25,"cm"),ggh4x.axis.ticks.length.minor = rel(0.5),axis.ticks = element_line(size = 2),ggh4x.axis.ticks.length.minor = rel(0.5),axis.text.x=element_text(size=11,colour = "black",face="bold",angle=45, hjust=1),axis.text.y=element_text(size=11,colour = "black",face="bold",hjust=1),
                       axis.title=element_text(size=14,face="bold"),title = element_text(size=16,colour = "black",face="bold"))
               
-                ggsave(paste0("Core ",dd$Lab[i],"-",dd$Sample[i]," sample on ",dd$Depth[i],"cm.png"), dpi = 900,   width = 250,
+                ggsave(paste0(label.name,".png"), dpi = 900,   width = 250,
                        height = 159,unit="mm",plot =plot) 
     }    
    }
   }
- }
-####################### 
+}
+###########################################
 #OUTCOME
 dout$mean=round(dout$mean)
 dout$percent=round(dout$percent,digits = 2)
@@ -279,18 +292,15 @@ colnames(dinput)=l
 myt=ttheme_minimal(base_size = 12, base_colour = "black", base_family = "",
                    parse = T , padding = unit(c(2,2), "mm"),colhead=list(fg_params = list(parse=TRUE), fontface=4L,bg_params=list(fill="gray90")))
 
-png(paste0(dinput$`Lab code`[1],".input.png"), width = 20+ncol(dinput)*425/15, heigh = 20+105/19*nrow(dinput), units = 'mm', res =1200)
+png(paste0(dinput$`Lab code`[1],".input.png"), width = 20+ncol(dinput)*425/15, heigh =20+100/19*nrow(dinput), units = 'mm', res =1200)
 grid.table(dinput,rows = NULL,theme=myt)
 dev.off()
 
 colnames(dout)[1:length(l)]=l
 #plot output table
-png(paste0(dinput$`Lab code`[1],".output.png"), width = 20+ncol(dout)*525/22, heigh = 20+105/19*nrow(dinput), units = 'mm', res =1200)
+png(paste0(dinput$`Lab code`[1],".output.png"), width = 20+ncol(dout)*525/22, heigh = 20+100/19*nrow(dinput), units = 'mm', res =1200)
 grid.table(dout,rows = NULL,theme=myt)
 dev.off()
-
-bi=Sys.time()
-bi-ai
 
 setwd(dct)
 end=Sys.time()#ending time
