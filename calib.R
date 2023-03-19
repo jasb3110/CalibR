@@ -1,5 +1,11 @@
-calib.R=function(input=input,sigma=c(.68,.95,.99,"1s","2s","3s","1sigma","2sigma","3sigma"),show.table=c(TRUE,FALSE,T,F,1,0),show.plot=c("minimal","default","both","FALSE",T,F,0,1)){
-  ##################################### 
+calibR=function(input=input,sigma=c(.68,.95,.99,"1s","2s","3s","1sigma","2sigma","3sigma"),curve=c(1,2,3,"intcal20", "marine20","shcal20",
+                                                                                                   "marine13", "shcal13",
+                                                                                                  "nh1", "nh2", "nh3", "sh1-2", "sh3", "nh1_monthly", "nh1_monthly", "nh2_monthly",
+                                                                                                  "nh3_monthly", "sh1-2_monthly", "sh3_monthly", "kure", "levinKromer",
+                                                                                                  "santos"),show.table=c(TRUE,FALSE,T,F,1,0),show.plot=c("minimal","default","both","FALSE",T,F,0,1)){
+ 
+
+   ##################################### 
   # License: GNU
   # Author: José Solís, March 2023
   # email: solisbenites.jose@gmail.com
@@ -29,10 +35,16 @@ calib.R=function(input=input,sigma=c(.68,.95,.99,"1s","2s","3s","1sigma","2sigma
       "Delta*R~SD~(yrs)","Marine carbon\n(%)","Description","Calibration~curve",          
       "Depth~(cm)")
   
+  ccc=c(1,2,3,"intcal20", "marine20","shcal20",
+        "marine13", "shcal13",
+        "nh1", "nh2", "nh3", "sh1-2", "sh3", "nh1_monthly", "nh1_monthly", "nh2_monthly",
+        "nh3_monthly", "sh1-2_monthly", "sh3_monthly", "kure", "levinKromer",
+        "santos")
+  
   sigmas=c("1s","2s","3s","1sigma","2sigma","3sigma")
   sigmass.number=c(.68,.95,.99,.68,.95,.99)
   sigma0=as.data.frame(cbind(sigmas,sigmass.number))
-  input=as.data.frame(input)
+  dd=as.data.frame(dd)
   labely=expression(paste("Density (",10^-3,")"))
   tabless=c(TRUE,FALSE,T,F,1,0)
   plotss=c("minimal","default","both","FALSE",T,F,0,1)
@@ -48,11 +60,12 @@ if (file.exists(outy)) {
   dir.create(outy)
 }
 
-if(ncol(input)!=length(namess)){
+if(ncol(dd)!=length(namess)){
 stop("Input database haven´t numbers of columns")
 }else{
-for(k in 1:ncol(input)){
-  if(colnames(input)[k]!=namess[k]){
+for(k in 1:ncol(dd)){
+  if(colnames(dd)[k]!=namess[k]){
+  cat(paste0("Error in colname ",k))
   stop("Input database haven´t numbers of columns")  
   }else{
     if(length(sigma)!=1){
@@ -69,7 +82,7 @@ for(k in 1:ncol(input)){
           }
         }
       }else{
-          if(length(which(sigma0$sigmas!=sigma))==6){
+          if(length(which(sigma0$sigmas!=sigma))==length(sigma0$sigmas)){
           stop("Sigma should be alowed value")  
           }else{
         s=sigma0$sigmass.number[which(sigma0$sigmas==sigma)]
@@ -80,12 +93,25 @@ for(k in 1:ncol(input)){
     }
   }
 }
+
 if(length(show.plot)!=1){
   stop("plot value should be one item")
 }else{
   if(sum(plotss!=show.plot,na.rm=T)!=7){
     stop("plot value don´t allowed, just to be minimal, default, both, FALSE, T, F, 0, 1")
+  }  
+}  
+
+if(length(curve)!=1){
+    stop("just picked one calibration curve")
+  }else{
+  if(sum(ccc!=curve,na.rm=T)!=(length(ccc)-1)){
+    stop(paste0("name of calibration curve do not find, just to be intcal20, marine20, shcal20, marine13, shcal13, nh1, nh2, nh3,          
+    sh1-2, sh3, nh1_monthly, nh1_monthly, nh2_monthly, nh3_monthly, sh1-2_monthly, sh3_monthly,  
+    kure, levinKromer, santos"))
   }
+}
+
 #######################################  
 #Input variables
 sigma=sigma# 0.68, 0.95, 0.99 >>>one, two, three sigma
@@ -95,7 +121,6 @@ r=NULL
 sss=NULL
 vvv=NULL
 gg=NULL
-curv="marine20"
 rsv=NULL
 sdrsv=NULL
 c14=NULL
@@ -119,10 +144,17 @@ for(i in 1:length(dd$Sample)){
     if(sum(is.na(c14)==T,is.na(sdc14)==T)>0){
       next()
     }else{
-      if((c14-sdc14-rsv-sdrsv)<603|(c14+sdc14+rsv+sdrsv)>50000){ 
+      if(curve=="Marine20"&(c14-sdc14-rsv-sdrsv)<603|curve=="Marine20"&(c14+sdc14+rsv+sdrsv)>50000){ 
         next()
       }else{
-        assign(paste0("rrr",i),calibrate(age=c14, error=sdc14, cc=curv, prob=sigma, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv),legend.cex = 1))
+        if(is.na(rsv)|is.null(rsv)==1){
+          rsv=0
+        }
+        if(is.na(sdrsv)|is.null(sdrsv)==1){
+          sdrsv=0 
+        }
+        
+        assign(paste0("rrr",i),calibrate(age=c14, error=sdc14, cc = curve, prob=sigma, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv),legend.cex = 1))
         invisible(get(paste0("rrr",i)))
         assign(paste0("r",i),as.data.frame(get(paste0("rrr",i))[1])[1])
         assign(paste0("rr",i),as.data.frame(get(paste0("rrr",i))[1])[2])
@@ -186,25 +218,45 @@ for( i in 1:length(dd$Sample)){
       warning("Can not calibrate dates: NA value", sep="\n\n")
       next()
     }else{
-      if((c14-sdc14-rsv-sdrsv<603)|(c14+sdc14+rsv+sdrsv>50000)){
+      if(curve=="Marine20"&(c14-sdc14-rsv-sdrsv)<603|curve=="Marine20"&(c14+sdc14+rsv+sdrsv)>50000){ 
   
-        cat(paste0("Can´t plotted date beyond calibration curve!: Convencial age ",dd$X14C.BP[i],"\u00B1",dd$X14C.Age.SD[i]), sep="\n\n")
+        cat(paste0("Can´t plotted date beyond ",curve," calibration curve!: Convencial age ",dd$X14C.BP[i],"\u00B1",dd$X14C.Age.SD[i]), sep="\n\n")
         next()
       }else{
-        
+        if(is.na(rsv)|is.null(rsv)==1){
+          rsv=0
+        }
+        if(is.na(sdrsv)|is.null(sdrsv)==1){
+          sdrsv=0 
+        }
         png(paste0(dd$Sample[i],".plot.png"),width = 200, heigh = 200, units = 'mm', res =1200)
-        calibrate(age=c14, error=sdc14, cc=curv, prob=sigma, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv),legend.cex = 1)
+        calibrate(age=c14, error=sdc14, cc = curve, prob=sigma, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv),legend.cex = 1)
         dev.off()
         
         if(sum(show.plot=="both",show.plot=="default",show.plot==T,show.plot==1,na.rm=T)==1){
           x11()
           plot.new()
-          calibrate(age=c14, error=sdc14, cc=curv, prob=sigma, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv),legend.cex = 1)
+          calibrate(age=c14, error=sdc14, cc = curve, prob=sigma, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv),legend.cex = 1)
           dev.off()
           }
         
         dr=as.data.frame(get(paste0("rrr",i))[1])
         dr[[2]]=1000*dr[[2]]
+        
+        if(sum(is.na(dd$Depth[i]),is.null(dd$Depth[i]),dd$Depth[i]=="",na.rm = T)>0){
+          label.name=paste0(dd$Lab[i],"-",dd$Sample[i]) 
+        }else{
+          label.name=paste0(dd$Lab[i],"-",dd$Sample[i]," sample on ",dd$Depth[i],"cm")  
+        }
+
+        if (is.numeric(curve)) {
+        if (curve==1) 
+          curve="intcal20"
+        else if (curve==2) 
+          curve="marine20"
+        else if (curve==3) 
+          curve="shcal20"
+        }
         
         plotting=ggplot(data=dr, aes(x=dr[[1]], y=dr[[2]])) + geom_line()+
           theme_classic()+
@@ -254,16 +306,16 @@ for( i in 1:length(dd$Sample)){
           
           scale_x_continuous(limits = c(min(dr$cal.BP)*.99,max(dr$cal.BP)*1.01),breaks =scales::pretty_breaks(n = 5),guide = "axis_minor")+
           scale_y_continuous(limits = c(0,max(dr$V2)*1.02),breaks =scales::pretty_breaks(n = 5),guide = "axis_minor")+
-          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.505,y=quantile(dr[[2]])[5]*1.0*1.02,label=paste0(dd$Lab[i]," sample on ",dd$Depth[i],"cm"), size = 4,col="black")+
+          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.505,y=quantile(dr[[2]])[5]*1.0*1.02,label=label.name, size = 4,col="black")+
           annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.505,y=quantile(dr[[2]])[5]*.97*1.02,label=paste0("Cal.age: ",dd$max[i],"\u00B1",dd$error[i]), size = 4,col="black")+
-          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.505,y=quantile(dr[[2]])[5]*.94*1.02,label=paste0("\u0394R = ",dd$Delta.R[i],"\u00B1",dd$Delta.R.SD[i]), size = 4,col="black")+
+          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.505,y=quantile(dr[[2]])[5]*.94*1.02,label=paste0("\u0394R = ",rsv,"\u00B1",sdrsv), size = 4,col="black")+
           annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.505,y=quantile(dr[[2]])[5]*.91*1.02,label=paste0("Probability: ",trunc(100*dd$percent[i])/100,"%"), size = 4,col="black")+
-          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.505,y=quantile(dr[[2]])[5]*.88*1.02,label=paste0("Cal. curve: ",curv), size = 4,col="black")+
+          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.505,y=quantile(dr[[2]])[5]*.88*1.02,label=paste0("Cal. curve: ",curve), size = 4,col="black")+
           labs(title=paste0("Relative probability of sample "),x ="Cal yr BP", y = labely)
         theme(xis.ticks.length=unit(0.25,"cm"),ggh4x.axis.ticks.length.minor = rel(0.5),axis.ticks = element_line(size = 2),ggh4x.axis.ticks.length.minor = rel(0.5),axis.text.x=element_text(size=11,colour = "black",face="bold",angle=45, hjust=1),axis.text.y=element_text(size=11,colour = "black",face="bold",hjust=1),
               axis.title=element_text(size=14,face="bold"),title = element_text(size=16,colour = "black",face="bold"))
         
-        ggsave(paste0("Core ",dd$Lab[i],"-",dd$Sample[i]," sample on ",dd$Depth[i],"cm.png"), dpi = 900,   width = 250,
+        ggsave(paste0(label.name,".png"), dpi = 900,   width = 250,
                height = 159,unit="mm",plot =plotting)
         
         if(sum(show.plot=="minimal",show.plot=="both",show.plot==T,show.plot==1,na.rm=T)==1){
@@ -278,7 +330,7 @@ for( i in 1:length(dd$Sample)){
       }    
     }
   }
-}
+
 ################################################################################
 #OUTCOME
 
@@ -316,11 +368,11 @@ if(sum(tabless!=show.table,na.rm=T)!=3){
   }
   }  
  }
-beep(8)#mario bros sound
 setwd(dct)
 end=Sys.time()#ending time
 tem=end-begin
 cat("Working time was estimated how", sep="\n\n")
 print(tem)
 cat(paste0("Calibration finished of ",dd$`Lab code`[i]," successfully!!", sep="\n\n"))
+beep(8)#mario bros sound
 }

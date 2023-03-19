@@ -304,7 +304,7 @@ beep(8)#mario bros sound
 #to use a calibR how function which managed same way that previous lines of this script.  
 
 source("calib.R")#Call up a function
-calib.R(input=d,sigma = 0.68,show.table = F,show.plot = "default")
+calibR(input=d,sigma = 0.68,curve="marine20",show.table = F,show.plot = "default")
 
 ################################################################################
 ```
