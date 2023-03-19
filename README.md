@@ -121,7 +121,7 @@ for(i in 1:length(dd$Sample)){
        if(sum(is.na(c14)==T,is.na(sdc14)==T)>0){
          next()
          }else{
-          if((c14-sdc14-rsv-sdrsv)<603|(c14+sdc14+rsv+sdrsv)>50000){ 
+          if(curve=="Marine20"&(c14-sdc14-rsv-sdrsv)<603|curve=="Marine20"&(c14+sdc14+rsv+sdrsv)>50000){ 
           next()
           }else{
     assign(paste0("rrr",i),calibrate(age=c14, error=sdc14, cc=curv, prob=a, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv)))
@@ -154,18 +154,7 @@ for(i in 1:length(dd$Sample)){
     }
 }
 
-dout=as.data.frame(dd)
-#plotting in low resolution 
-#for( i in 1:length(dd$Sample)){  
-#X11();plot(as.data.frame(get(paste0("rrr",i))[1])[[1]],as.data.frame(get(paste0("rrr",i))[1])[[2]] ,type="l",xlab="Cal BP",ylab="Density",main =dd$Sample[i])
-#  abline(v=dd$mean[i],col="gray")#mean value
-#  abline(v=dd$lower[i],col="blue")# lower value
-#  abline(v=dd$upper[i],col="red")#upper value
-#  abline(v=dd$median[i],col="green")#median value
-#  abline(v=dd$max[i],col="black")#maximum probability value
-#}  
-
-###########################################
+########################################
 #create or open folder with specified name
 file=paste0(dct,"/",outy)
 setwd(file)
@@ -199,7 +188,7 @@ for( i in 1:length(dd$Sample)){
       warning(paste0("Can´t calibrate dates: NA value"))
       next()
       }else{
-      if((c14-sdc14-rsv-sdrsv<603)|(c14+sdc14+rsv+sdrsv>50000)){ 
+      if(curve=="Marine20"&(c14-sdc14-rsv-sdrsv<603)|curve=="Marine20"&(c14+sdc14+rsv+sdrsv>50000)){ 
         warning(paste0("Can´t plotted date beyond calibration curve!: Convencial age ",dd$X14C.BP[i],"\u00B1",dd$X14C.Age.SD[i]))
         next()
         }else{
