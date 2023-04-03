@@ -121,7 +121,7 @@ for(i in 1:length(dd$Sample)){
        if(sum(is.na(c14)==T,is.na(sdc14)==T)>0){
          next()
          }else{
-          if(curve=="Marine20"&(c14-sdc14-rsv-sdrsv)<603|curve=="Marine20"&(c14+sdc14+rsv+sdrsv)>50000){ 
+          if(sum(curve=="marine20"&((c14-sdc14-rsv-sdrsv)<603),curve=="marine20"&((c14+sdc14+rsv+sdrsv)>50000),na.rm = T)==1){ 
           next()
           }else{
     assign(paste0("rrr",i),calibrate(age=c14, error=sdc14, cc=curv, prob=a, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv)))
@@ -188,7 +188,7 @@ for( i in 1:length(dd$Sample)){
       warning(paste0("Can´t calibrate dates: NA value"))
       next()
       }else{
-      if(curve=="Marine20"&(c14-sdc14-rsv-sdrsv<603)|curve=="Marine20"&(c14+sdc14+rsv+sdrsv>50000)){ 
+      if(sum(curve=="marine20"&((c14-sdc14-rsv-sdrsv)<603),curve=="marine20"&((c14+sdc14+rsv+sdrsv)>50000),na.rm = T)==1){ 
         warning(paste0("Can´t plotted date beyond calibration curve!: Convencial age ",dd$X14C.BP[i],"\u00B1",dd$X14C.Age.SD[i]))
         next()
         }else{

@@ -3,13 +3,11 @@ calibR=function(input=input,sigma=c(.68,.95,.99,"1s","2s","3s","1sigma","2sigma"
                                                                                                   "nh1", "nh2", "nh3", "sh1-2", "sh3", "nh1_monthly", "nh1_monthly", "nh2_monthly",
                                                                                                   "nh3_monthly", "sh1-2_monthly", "sh3_monthly", "kure", "levinKromer",
                                                                                                   "santos"),show.table=c(TRUE,FALSE,T,F,1,0),show.plot=c("minimal","default","both","FALSE",T,F,0,1)){
- 
-
-   ##################################### 
+##################################### 
   # License: GNU
   # Author: José Solís, March 2023
   # email: solisbenites.jose@gmail.com
-  ####################################
+####################################
   require("IntCal")
   require("ggplot2")
   require("ggh4x")
@@ -18,7 +16,7 @@ calibR=function(input=input,sigma=c(.68,.95,.99,"1s","2s","3s","1sigma","2sigma"
   require("magrittr")
   require("scales")
   require("beepr")
-  ###################################
+###################################
   begin=Sys.time()#Begining time
   dd<- input[-c(1),]
   cat(paste0("To begin to calibrate of ",dd$Lab[1], sep="\n\n"))
@@ -144,7 +142,7 @@ for(i in 1:length(dd$Sample)){
     if(sum(is.na(c14)==T,is.na(sdc14)==T)>0){
       next()
     }else{
-      if(curve=="Marine20"&(c14-sdc14-rsv-sdrsv)<603|curve=="Marine20"&(c14+sdc14+rsv+sdrsv)>50000){ 
+      if(sum(curve=="marine20"&((c14-sdc14-rsv-sdrsv)<603),curve=="marine20"&((c14+sdc14+rsv+sdrsv)>50000),na.rm = T)==1){ 
         next()
       }else{
         if(is.na(rsv)|is.null(rsv)==1){
@@ -218,7 +216,7 @@ for( i in 1:length(dd$Sample)){
       warning("Can not calibrate dates: NA value", sep="\n\n")
       next()
     }else{
-      if(curve=="Marine20"&(c14-sdc14-rsv-sdrsv)<603|curve=="Marine20"&(c14+sdc14+rsv+sdrsv)>50000){ 
+      if(sum(curve=="marine20"&((c14-sdc14-rsv-sdrsv)<603),curve=="marine20"&((c14+sdc14+rsv+sdrsv)>50000),na.rm = T)==1){ 
   
         cat(paste0("Can´t plotted date beyond ",curve," calibration curve!: Convencial age ",dd$X14C.BP[i],"\u00B1",dd$X14C.Age.SD[i]), sep="\n\n")
         next()
