@@ -1,3 +1,8 @@
+---
+output:
+  pdf_document: default
+  html_document: default
+---
 # CalibR
 
 It´s R-script to the same outcome Calib 8.02 for radiocarbon calibration.
@@ -41,6 +46,8 @@ Finally, This script is created an outcome table where you are able to find the 
 It could be possible some plotting which were distorted. So that, you should adapt this script to improve margin,resolution or font of picture.
 
 ## R code
+
+Finally, it were showed a source of CalibR [(4)](#reference). 
 ```markdown
 #########################################################################
 #datation for core which was pulled out off Mejillones
@@ -309,8 +316,9 @@ calibR(input=d,sigma = 0.68,curve="marine20",show.table = F,show.plot = "default
 ```
 ## Reference
 
-Intcal package in R (2022). https://cran.r-project.org/web/packages/IntCal/index.html
+  - Intcal package in R (2022). https://cran.r-project.org/web/packages/IntCal/index.html
 
-Stuiver, M., & Reimer, P. J. (1993). EXTENDED 14C DATA BASE AND REVISED CALIB 3.014C AGE CALIBRATION PROGRAM. Radiocarbon, 35(1), 215–230. https://doi.org/10.14210/bjast.v17.n2.pNB5-8
+  - Stuiver, M., & Reimer, P. J. (1993). EXTENDED 14C DATA BASE AND REVISED CALIB 3.014C AGE CALIBRATION PROGRAM. Radiocarbon, 35(1), 215–230. https://doi.org/10.14210/bjast.v17.n2.pNB5-8
 
-Guiñez, M., Valdés, J., Sifeddine, A., Boussafir, M., & Dávila, P. M. (2014). Anchovy population and ocean-climatic fluctuations in the Humboldt Current System during the last 700 years and their implications. Palaeogeography, Palaeoclimatology, Palaeoecology, 415, 210–224. https://doi.org/10.1016/j.palaeo.2014.08.026
+  - Guiñez, M., Valdés, J., Sifeddine, A., Boussafir, M., & Dávila, P. M. (2014). Anchovy population and ocean-climatic fluctuations in the Humboldt Current System during the last 700 years and their implications. Palaeogeography, Palaeoclimatology, Palaeoecology, 415, 210–224. https://doi.org/10.1016/j.palaeo.2014.08.026
+  - https://github.com/jasb3110/CalibR/blob/02cb2fef4994c204081e9a7e28c4e1e55471d8ce/calib.R

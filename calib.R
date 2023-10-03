@@ -310,7 +310,7 @@ for( i in 1:length(dd$Sample)){
           annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.505,y=quantile(dr[[2]])[5]*.91*1.02,label=paste0("Probability: ",trunc(100*dd$percent[i])/100,"%"), size = 4,col="black")+
           annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.505,y=quantile(dr[[2]])[5]*.88*1.02,label=paste0("Cal. curve: ",curve), size = 4,col="black")+
           labs(title=paste0("Relative probability of sample "),x ="Cal yr BP", y = labely)
-        theme(xis.ticks.length=unit(0.25,"cm"),ggh4x.axis.ticks.length.minor = rel(0.5),axis.ticks = element_line(size = 2),ggh4x.axis.ticks.length.minor = rel(0.5),axis.text.x=element_text(size=11,colour = "black",face="bold",angle=45, hjust=1),axis.text.y=element_text(size=11,colour = "black",face="bold",hjust=1),
+        theme(axis.ticks.length = unit(0.25,"cm"),ggh4x.axis.ticks.length.minor = rel(0.5),axis.ticks = element_line(size = 2),ggh4x.axis.ticks.length.minor = rel(0.5),axis.text.x=element_text(size=11,colour = "black",face="bold",angle=45, hjust=1),axis.text.y=element_text(size=11,colour = "black",face="bold",hjust=1),
               axis.title=element_text(size=14,face="bold"),title = element_text(size=16,colour = "black",face="bold"))
         
         ggsave(paste0(label.name,".png"), dpi = 900,   width = 250,
