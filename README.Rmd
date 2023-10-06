@@ -9,7 +9,7 @@ It´s R-script to the same outcome Calib 8.02 for radiocarbon calibration.
 - [Reference](#reference)
 
 ## Proposal 
-This script tries to replicate the radiocarbon calibration of software Calib 8.02 [(1)](#reference) for any Operative system in R programing. Therefore, the Data input is the same as Calib 8.02 input based on Intcal package which created by Maarten Blaauw [(2)](https://cran.r-project.org/web/packages/IntCal/index.html).
+This script tries to replicate the radiocarbon calibration of software Calib 8.02 [(1)](#reference) for any Operative system in R programming. Therefore, the Data input is the same as Calib 8.02 input based on Intcal package which created by Maarten Blaauw [(2)](https://cran.r-project.org/web/packages/IntCal/index.html).
 Also, it is able to plot and create output data in a file in the format .csv. Bellow, I attached this script and example of published data Guiñez et al, 2014 [(3)](#reference).
 
 It showed the input table. It's too important to sort data this way.
@@ -18,7 +18,7 @@ It showed the input table. It's too important to sort data this way.
 |:--:| 
 |*Table. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*|
 
-After that, you can look at the format of the outcome plots. Axis x is a range of calibrated age and axis y is the density probability of calibration. The black, green, and gray lines mean the maximum probability, median, and mean calibrated age, respectively. Also, the blue and red lines mean calibration´s limit according to One standard deviation (one sigma: 68%). sigma value can be changed if you would.
+After that, you can look at the format of the outcome plots which created by ggplot2. Axis x is a range of calibrated age and axis y is the density probability of calibration. The black, green, and gray lines mean the maximum probability, median, and mean calibrated age, respectively. Also, the blue and red lines mean calibration´s limit according to One standard deviation (one sigma: 68%). sigma value can be changed if you would.
 
 |[![Plot.](calout/mejillones/Core%20mejillones-mejillones-18%20sample%20on%2054cm.png)](https://github.com/jasb3110/CalibR/blob/ba749dcab638c0243d6a7c11ef361c2016970ddb/calout/mejillones/Core%20mejillones-mejillones-18%20sample%20on%2054cm.png)|
 |:--:| 
