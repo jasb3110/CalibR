@@ -9,7 +9,7 @@ It´s R-script to the same outcome Calib 8.02 for radiocarbon calibration.
 - [Reference](#reference)
 
 ## Proposal 
-This script tries to replicate the radiocarbon calibration of software Calib 8.02 [(1)](#reference) for any Operative system in R programing. Therefore, the Data input is the same as Calib 8.02 input based on Intcal package which created by Maarten Blaauw [(2)](https://cran.r-project.org/web/packages/IntCal/index.html).
+This script tries to replicate the radiocarbon calibration of software Calib 8.02 [(1)](#reference) for any Operative system in R programming. Therefore, the Data input is the same as Calib 8.02 input based on Intcal package which created by Maarten Blaauw [(2)](https://cran.r-project.org/web/packages/IntCal/index.html).
 Also, it is able to plot and create output data in a file in the format .csv. Bellow, I attached this script and example of published data Guiñez et al, 2014 [(3)](#reference).
 
 It showed the input table. It's too important to sort data this way.
