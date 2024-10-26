@@ -44,7 +44,7 @@ Finally, This script is created an outcome table where you are able to find the 
 
 ### WARNING:
 
-It could be possible some plotting which were distorted. So that, you should adapt this script to improve margin,resolution or font of picture.
+Some plots may appear distorted, so you should adjust this script to improve the margins, resolution, or font of the images as needed.
 
 ## R code
 
