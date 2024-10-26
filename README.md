@@ -659,7 +659,6 @@ print(tem)
 cat(paste0("Calibration finished of ",dd$`Lab code`[i]," successfully!!", sep="\n\n"))
 beep(8)#mario bros sound
 }
-
 ################################################################################
 #to use a calibR how function which managed same way that previous lines of this script.  
 source("calib2.R")#Call up a function
