@@ -20,13 +20,13 @@ It showed the input table. It's too important to sort data this way.
 
 First picture, you can look at the format of the outcome plots. Axis x is a range of calibrated age and axis y is the density probability of calibration. The black, green, and gray lines mean the maximum probability, median, and mean calibrated age, respectively. Also, the blue and red lines mean calibration´s limit according to One standard deviation (one sigma: 68%). Sigma value can be changed if you would.
 
-|[![Plot.](blob/d53c279aa35f67b1199f0f94bf6d84105b8e633a/mejillones-mejillones-1%20sample%20on%2011cm-colour.png)](https://github.com/jasb3110/CalibR/blob/d53c279aa35f67b1199f0f94bf6d84105b8e633a/mejillones-mejillones-1%20sample%20on%2011cm-colour.png)|
+|[![Plot.](mejillones-mejillones-1%20sample%20on%2011cm-colour.png)](https://github.com/jasb3110/CalibR/blob/d53c279aa35f67b1199f0f94bf6d84105b8e633a/mejillones-mejillones-1%20sample%20on%2011cm-colour.png)|
 |:--:| 
 |*Picture 1. Outcome plot of sample on 54cm (Guiñez et al. 2014)*|
 
 Second picture is similar to before picture. Hovewer, this picture has gras-scale. 
 
-|[![Plot.](blob/d53c279aa35f67b1199f0f94bf6d84105b8e633a/mejillones-mejillones-1%20sample%20on%2011cm-gray.png)](https://github.com/jasb3110/CalibR/blob/d53c279aa35f67b1199f0f94bf6d84105b8e633a/mejillones-mejillones-1%20sample%20on%2011cm-gray.png)|
+|[![Plot.](mejillones-mejillones-1%20sample%20on%2011cm-gray.png)](https://github.com/jasb3110/CalibR/blob/d53c279aa35f67b1199f0f94bf6d84105b8e633a/mejillones-mejillones-1%20sample%20on%2011cm-gray.png)|
 |:--:| 
 |*Picture 2. Outcome plot of sample on 54cm (Guiñez et al. 2014)*|
 
