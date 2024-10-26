@@ -22,13 +22,13 @@ First picture, you can look at the format of the outcome plots. Axis x is a rang
 
 |[![Plot.](mejillones-mejillones-1%20sample%20on%2011cm-colour.png)](https://github.com/jasb3110/CalibR/blob/d53c279aa35f67b1199f0f94bf6d84105b8e633a/mejillones-mejillones-1%20sample%20on%2011cm-colour.png)|
 |:--:| 
-|*Picture 1. Outcome plot of sample on 54cm (Guiñez et al. 2014)*|
+|*Picture 1. Outcome plot of sample on 54cm colour-scale (Guiñez et al. 2014)*|
 
 Second picture is similar to before picture. Hovewer, this picture has gras-scale. 
 
 |[![Plot.](mejillones-mejillones-1%20sample%20on%2011cm-gray.png)](https://github.com/jasb3110/CalibR/blob/d53c279aa35f67b1199f0f94bf6d84105b8e633a/mejillones-mejillones-1%20sample%20on%2011cm-gray.png)|
 |:--:| 
-|*Picture 2. Outcome plot of sample on 54cm (Guiñez et al. 2014)*|
+|*Picture 2. Outcome plot of sample on 54cm in gray-scale (Guiñez et al. 2014)*|
 
 Finally, This script is created an outcome table where you are able to find the maximum, median, and mean calibrate age in columns. the outcome table will be saved together with plots [(Table 2.)](calout/mejillones/mejillones.output.png) and I attached a function in source [(4)](https://github.com/jasb3110/CalibR/blob/36366a16fc9cf5e4c5f070f9b17be2f357915dc5/calib.R).
 
