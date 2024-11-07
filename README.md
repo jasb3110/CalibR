@@ -9,9 +9,10 @@ Initially, this R script was designed to replicate the radiocarbon calibration r
 - [Reference](#reference)
 
 ## Proposal 
-This script aims to replicate the radiocarbon calibration functionality of Calib 8.02 software on any operating system using the R programming language. Consequently, the data input format aligns with that of Calib 8.02, utilizing the IntCal package developed by Maarten Blaauw[(2)](https://cran.r-project.org/web/packages/IntCal/index.html).
-The script can also generate plots and save output data in .csv format. Below, I’ve included the script and an example using published data from Guiñez et al., 2014[(3)](#reference).
-
+calibR3() is an R function designed to replicate and enhance radiocarbon (14C) calibration, inspired by Calib 8.02, providing:
+Flexible calibration curves (intcal20, marine20, shcal20, etc.), including mixed marine–terrestrial cases.
+Explicit sigma control (1σ/2σ/3σ or any probability between 0–1).Reproducible outputs: native calibration PNG, ggplot2-enhanced PNG, CSV with probability density, and input/output tables as PNG.
+Smart labels for mean, median, maximum values with ggrepel.Below, I’ve included the script and an example using published data from Guiñez et al., 2014[(3)](#reference).
 The input table is displayed below. It is crucial to sort the data in this specific format.
 
 |[![Table 1.](calout/mejillones/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/b4b7f34fe5c1becce1b3b3b20495344bc8da6f60/calout/mejillones/mejillones.input.png)|
@@ -51,621 +52,465 @@ Some plots may appear distorted, so you should adjust this script to improve the
 Finally, it were showed a source of Calib2.R[(4)](#reference). 
 ```markdown
 #########################################################################
-calibR2=function(input=input,sigma=c(1,2,3,.68,.95,.99,"1s","2s","3s","1sigma","2sigma","3sigma"),
-                 curve=c(1,2,3,"intcal20", "marine20","shcal20",
-                 "marine13", "shcal13",
-                 "nh1", "nh2", "nh3", "sh1-2", "sh3", "nh1_monthly", "nh1_monthly", "nh2_monthly",
-                 "nh3_monthly", "sh1-2_monthly", "sh3_monthly", "kure", "levinKromer",
-                 "santos"),
-                 colour=c("default","color","colour",1,T,"yes","YES","Yes","YEs","YeS","yeS","yES",
-                          "minimal","gray","grey",0,F,"no","No","nO","NO",FALSE),
-                 show.table=c(T,1,"yes","YES","Yes","YEs","YeS","yES",
-                              "default",F,0,"no","No","nO","NO"),
-                 show.plot=c("both",T,1,"yes","YES","Yes","YEs","YeS","yES",
-                             "minimal","default","FALSE",F,0,"no","No","nO","NO")){
-################################################################################
+calibR3<- function(
+    input=input,
+    sigma=c(1,2,3,.68,.95,.99,"1s","2s","3s","1sigma","2sigma","3sigma"),
+    curve=c(1,2,3,"intcal20","marine20","shcal20","marine13","shcal13",
+            "nh1","nh2","nh3","sh1-2","sh3","nh1_monthly","nh1_monthly","nh2_monthly",
+            "nh3_monthly","sh1-2_monthly","sh3_monthly","kure","levinKromer","santos"),
+    colour=c("default","color","colour",1,TRUE,"yes","minimal","gray","grey",0,FALSE,"no"),
+    show.table=c(TRUE,1,"yes","default",FALSE,0,"no"),
+    show.plot=c("both",TRUE,1,"yes","minimal","default",FALSE,0,"no"),
+    width.native = 200, height.native  = 200, units.native  = 'mm', res.native = 1200,
+    dpi.calib = 900, width.calib = 250, height.calib = 159, units.calib="mm",
+    round = 2,
+    csv_semicolon = FALSE  # TRUE for CSV with ';'
+){
+  ##############################################################################
   # License: GNU
-  # Author: José Solís, Octuber 2024
+  # Author: José Solís, September 2025
   # email: solisbenites.jose@gmail.com
-################################################################################
-  require("IntCal")
-  require("ggplot2")
-  require("ggh4x")
-  require("gridExtra")
-  require("devtools")
-  require("magrittr")
-  require("scales")
-  require("ggrepel")
-  require("beepr")
-  require("ggrepel")
-################################################################################
-  begin=Sys.time()#Begining time
-  if (missing(input)){beep(7);stop("Didn´t find a input data")}
-  if (missing(sigma)) sigma=0.68
-  if (missing(curve)) "marine20"
-  if (missing(colour)) colour="minimal"
-  if (missing(show.table)) show.table=F
-  if (missing(show.plot)) show.plot=F
+  ##############################################################################
+  # Packages
+  req <- c("IntCal","ggplot2","ggh4x","gridExtra","magrittr","scales","ggrepel","dplyr","progress")
+  ok <- sapply(req, require, character.only=TRUE, quietly=TRUE)
+  if (!all(ok)) stop("Missing packages: ", paste(req[!ok], collapse=", "))
+  has_beep <- requireNamespace("beepr", quietly=TRUE)
+  beep <- function(i){ if (has_beep) beepr::beep(i) }
   
-  dd<- input[-c(1),]
-  dd=as.data.frame(dd)
-  dct=getwd()#name of directory
-  cat(paste0("To begin to calibrate of ",dd$Lab[1], sep="\n\n"))
-  setwd(dct)#directory
+  begin <- Sys.time()
+  if (missing(input)) { beep(7); stop("Missing 'input'") }
   
-  namess=c("Lab","Sample","X14C.BP","X14C.Age.SD","Lab.Error",         
-           "Age.Span"           ,"Uncorrected.14C"    ,"Uncorrected.14C.SD" ,"d13C"               ,"d13C.SD",           
-           "Delta.R"            ,"Delta.R.SD"         ,"Marine.Carbon"      ,"Description"        ,"CalCurve",          
-           "Depth")
-  
-  l=c("Lab code", "Sample code",expression(phantom()^14*C~"\n(yrs BP)"),           
-      expression(phantom()^14*C~SD~"\n(yrs BP)"), "Lab Error", "Age Span",          
-      "Uncorrected~delta^14*C","Uncorrected~SD~delta^14*C","delta^13*C",              
-      "delta^13*C~SD" ,"Delta*R~(yrs)" ,            
-      "Delta*R~SD~(yrs)","Marine carbon\n(%)","Description","Calibration~curve",          
-      "Depth~(cm)")
-  
-  ccc=c(1,2,3,"intcal20", "marine20","shcal20",
-        "marine13", "shcal13",
-        "nh1", "nh2", "nh3", "sh1-2", "sh3", "nh1_monthly", "nh1_monthly", "nh2_monthly",
-        "nh3_monthly", "sh1-2_monthly", "sh3_monthly", "kure", "levinKromer",
-        "santos")
-  
-  sigmas=c(1,2,3,"1s","2s","3s","1sigma","2sigma","3sigma")
-  sigmass.number=c(.68,.95,.99,.68,.95,.99,.68,.95,.99)
-  sigma0=as.data.frame(cbind(sigmas,sigmass.number))
-  
-  labely=expression(paste("Density (",10^-3,")"))
-  colourss=c("default","color","colour",1,T,"yes","YES","Yes","YEs","YeS","yeS","yES",
-             "minimal","gray","grey",0,F,"no","No","nO","NO",FALSE)
-  colour1=c("default","color","colour",1,T,"yes","YES","Yes","YEs","YeS","yeS","yES")
-  colour0=c("minimal","gray","grey",0,F,"no","No","nO","NO",FALSE)
-  tabless=c(T,1,"yes","YES","Yes","YEs","YeS","yES",
-            "default",F,0,"no","No","nO","NO")
-  tables1=c(T,1,"yes","YES","Yes","YEs","YeS","yES")
-  tables0=c("default",F,0,"no","No","nO","NO")
-  plotss=c("both",T,1,"yes","YES","Yes","YEs","YeS","yES",
-           "minimal","default","FALSE",F,0,"no","No","nO","NO")
-  plots1=c("both",T,1,"yes","YES","Yes","YEs","YeS","yES")
-  plots0=c("minimal","default","FALSE",F,0,"no","No","nO","NO")
-  labely=expression(paste("Density (",10^-3,")"))
-  
-# outcome folders
-outy="calout"
-if (file.exists(outy)) {
-  cat("Calout folder already exists", sep="\n\n")
-} else {
-  dir.create(outy)
-}
-
-if(ncol(dd)!=length(namess)){
-beep(7)
-stop("Input database haven´t numbers of columns")
-}else{
-for(k in 1:ncol(dd)){
-  if(colnames(dd)[k]!=namess[k]){
-  cat(paste0("Error in colname ",k))
-    beep(7)
-    stop("Input database haven´t numbers of columns")
-  }else{
-    if(length(sigma)!=1){
-    beep(7)
-    stop("Sigma should be one item")
-    }else{
-      if(!is.character(sigma)){
-        if(!is.numeric(sigma)){
-        beep(7)
-        stop("Sigma should be alowed value")
-        }else{
-          if(sigma<0&sigma>3){
-          beep(7)  
-          stop("Sigma should be a value between 0 to 3")
-          }else{
-            if(sigma>=1){warning("if you choose a number such 1, 2 or 3, means that 1 sigma, 2sigma or 3sigma")}
-          sigma=sigma
-          }
-        }
-      }else{
-          if(length(which(sigma0$sigmas!=sigma))==(length(sigma0$sigmas)-1)){
-            beep(7)
-            stop("Sigma should be alowed value")
-          }else{
-        s=sigma0$sigmass.number[which(sigma0$sigmas==sigma)]
-        sigma=s
-        }
-       }
-      }
+  # ------------------------------ Normalizers ---------------------------------
+  to_bool <- function(x, yes=c("both","yes","true","1","t","y"), no=c("no","false","0","f","n")){
+    if (is.logical(x)) return(x)
+    if (is.numeric(x)) return(x != 0)
+    xx <- tolower(as.character(x))
+    if (xx %in% yes)  return(TRUE)
+    if (xx %in% no)   return(FALSE)
+    NA
+  }
+  norm_colour <- function(x){
+    xx <- tolower(as.character(x))
+    if (xx %in% c("default","color","colour","1","yes","true")) return("color")
+    if (xx %in% c("minimal","gray","grey","0","no","false"))    return("gray")
+    "gray"
+  }
+  norm_showplot <- function(x){
+    xx <- tolower(as.character(x))
+    if (xx %in% c("both","yes","true","1")) return("both")
+    if (xx %in% c("minimal","default"))      return("file")  # only save to disk
+    if (xx %in% c("no","false","0"))         return("none")
+    "file"
+  }
+  map_sigma <- function(s){
+    # numeric: 0<s<1 => prob; 1/2/3 => 0.68/0.95/0.99
+    # char: "1s","2s","3s","1sigma"... or ".68" => numeric
+    if (length(s) != 1) stop("Sigma must be a single value.")
+    if (is.numeric(s)){
+      if (dplyr::between(s,0,1)) return(s)
+      if (s %in% c(1,2,3)) return(c(.68,.95,.99)[match(s, c(1,2,3))])
+      stop("Invalid numeric sigma: use 0-1 (prob) or 1/2/3.")
+    } else {
+      ss <- tolower(as.character(s))
+      look  <- c("1s","2s","3s","1sigma","2sigma","3sigma")
+      vals  <- c(.68,.95,.99,.68,.95,.99)
+      if (ss %in% look) return(vals[match(ss,look)])
+      if (grepl("^0?\\.\\d+$", ss)) return(as.numeric(ss))
+      stop("Invalid sigma string. Use '1s','2s','3s','1sigma', etc.")
     }
   }
-}
-
-if(length(show.plot)!=1){
-  beep(7)
-  stop("show.plot value should be one item")
-  }else{
-  if(sum(plotss==show.plot,na.rm=T)<1){
-    beep(7)
-    stop("show.plot value don´t allowed, just to be minimal, default, both, FALSE, T, F, 0, 1")
-  }  
-}  
-
-if(length(curve)!=1){
-    beep(7)
-    stop("just picked one calibration curve")
-  }else{
-  if(sum(ccc!=curve,na.rm=T)!=(length(ccc)-1)){
-    beep(7)
-    stop(paste0("name of calibration curve do not find, just to be intcal20, marine20, shcal20, marine13, shcal13, nh1, nh2, nh3,          
-    sh1-2, sh3, nh1_monthly, nh1_monthly, nh2_monthly, nh3_monthly, sh1-2_monthly, sh3_monthly,  
-    kure, levinKromer, santos"))
+  
+  # ------------------------------- Input data ---------------------------------
+  dd  <- as.data.frame(input[-1,], stringsAsFactors = FALSE)
+  dct <- getwd()
+  
+  # Output folders
+  out_root <- file.path(dct, "calout")
+  if (!dir.exists(out_root)) { dir.create(out_root, recursive=TRUE); message("To create 'calout' file") }
+  
+  sanitize_name <- function(x){
+    x <- as.character(x); x[is.na(x)] <- ""
+    x <- gsub("[^A-Za-z0-9._-]+","_",x); x[nchar(x)==0] <- "LAB_UNNAMED"; x
   }
-}
-
-if(length(show.table)!=1){
-  beep(7)
-  stop("show.table value should be one item")
-}else{
-  if(length(which(tabless==show.table))<1){
-    beep(7)
-    stop("show.table value don´t allowed, just to be minimal, default, both, FALSE, T, F, 0, 1")
-  }  
-}  
-
-if(length(colour)!=1){
-  beep(7)
-  stop("colour value should be one item")
-}else{
-  if(length(which(colourss==colour))<1){
-    beep(7)
-    stop("colour value don´t allowed, just to be minimal,default,gray,grey,color,colour,0,1,T,F,yes,no")
-  }  
-}  
-
-#######################################  
-#Input variables
-sigma=sigma# 0.68, 0.95, 0.99 >>>one, two, three sigma
-rrr=NULL
-rr=NULL
-r=NULL
-sss=NULL
-vvv=NULL
-gg=NULL
-rsv=NULL
-sdrsv=NULL
-c14=NULL
-sdc14=NULL
-dd$mean=NA
-dd$lower=NA
-dd$upper=NA
-dd$median=NA
-dd$percent=NA
-dd$max=NA
-dd$error=NA
-
-beep(2)
-beep(2)
-beep(2)#mario bros sound
-
-for(i in 1:length(dd$Sample)){
-  rsv=as.numeric(dd$Delta.R[i])
-  sdrsv=as.numeric(dd$Delta.R.SD[i])
-  c14=as.numeric(dd$X14C.BP[i])
-  sdc14=as.numeric(dd$X14C.Age.SD[i])
-  if(sum(is.null(c14)==T,is.null(sdc14)==T,na.rm=T)>0){
-    next()
-  }else{
-    if(sum(is.na(c14)==T,is.na(sdc14)==T)>0){
-      next()
-    }else{
-      if(sum(curve=="marine20"&((c14-sdc14-rsv-sdrsv)<603),curve=="marine20"&((c14+sdc14+rsv+sdrsv)>50000),na.rm = T)==1){ 
-        next()
-      }else{
-        if(is.na(rsv)|is.null(rsv)==1){
-          rsv=0
-        }
-        if(is.na(sdrsv)|is.null(sdrsv)==1){
-          sdrsv=0 
-        }
-        assign(paste0("rrr",i),calibrate(age=c14, error=sdc14, cc = curve, prob=sigma, yr.steps=1, threshold=5e-04, rounded=4, reservoir=c(rsv,sdrsv),legend.cex = 1))
-        invisible(get(paste0("rrr",i)))
-        assign(paste0("r",i),as.data.frame(get(paste0("rrr",i))[1])[1])
-        assign(paste0("rr",i),as.data.frame(get(paste0("rrr",i))[1])[2])
-        dd$mean[i]=sum(as.data.frame(get(paste0("rrr",i))[1])[1]*as.data.frame(get(paste0("rrr",i))[1])[2])
-        
-        if(dim(get(paste0("rrr",i))[[2]])[1]==1){
-          dd$lower[i]=get(paste0("rrr",i))[[2]][1]
-          dd$upper[i]=get(paste0("rrr",i))[[2]][2]
-          dd$median[i]=round(dd$lower[i]*.5+dd$upper[i]*.5)
-          dd$percent[i]=get(paste0("rrr",i))[[2]][3]
-        }else{
-          gg=as.data.frame(get(paste0("rrr",i))[[2]])  
-          dd$lower[i]=gg$from[which(gg$perc==max(gg$perc))]
-          dd$upper[i]=gg$to[which(gg$perc==max(gg$perc))]
-          dd$median[i]=round(dd$lower[i]*.5+dd$upper[i]*.5)
-          dd$percent[i]=gg$perc[which(gg$perc==max(gg$perc))]
-        }
-        if(length(which(get(paste0("rr",i))==max(get(paste0("rr",i)))))==1){
-          dd$max[i]=get(paste0("r",i))[1][which(get(paste0("rr",i))[,1]==max(get(paste0("rr",i))[,1])),]
-        }else{
-          vvv=get(paste0("r",i))[which(get(paste0("rr",i))==max(get(paste0("rr",i)))),]
-          sss= abs(vvv-dd$mean[i])
-          dd$max[i]= vvv[which(sss==min(sss))]
-        }
-        dd$error[i]=max(abs(dd$lower[i]-dd$max[i]),abs(dd$max[i]-dd$upper[i]))
-      }
+  get_lab_dir <- function(lab_value){
+    lab_dir <- file.path(out_root, sanitize_name(lab_value))
+    if (!dir.exists(lab_dir)) { dir.create(lab_dir, recursive=TRUE); message("Created folder: ", lab_dir) }
+    lab_dir
+  }
+  
+  # Expected column names
+  namess <- c("Lab","Sample","X14C.BP","X14C.Age.SD","Lab.Error","Age.Span",
+              "Uncorrected.14C","Uncorrected.14C.SD","d13C","d13C.SD",
+              "Delta.R","Delta.R.SD","Marine.Carbon","Description","CalCurve","Depth")
+  if (ncol(dd) != length(namess) || !identical(colnames(dd), namess)){
+    beep(7); stop("Input columns do not exactly match the expected schema.")
+  }
+  
+  # Flags and sigma
+  colour_mode <- norm_colour(colour[1])
+  plot_mode   <- norm_showplot(show.plot[1])
+  table_plot  <- to_bool(show.table[1]); if (is.na(table_plot)) { beep(7); stop("Invalid 'show.table'.") }
+  sigma_prob  <- map_sigma(sigma[1])
+  
+  # color flag (before loop)
+  use_color <- identical(colour_mode, "color")
+  
+  # Init output fields
+  add_cols <- c("mean","lower","upper","median","max","error","percent")
+  for (v in add_cols) dd[[v]] <- NA_real_
+  
+  # --- progress bar -----------------------------------------------------------
+  pb <- progress_bar$new(
+    format = "(:spin) [:bar] :percent [Elapsed: :elapsedfull | ETA: :eta]",
+    total = nrow(dd),
+    complete = "=",
+    incomplete = "-",
+    current = ">",
+    clear = FALSE,
+    width = 100
+  )
+  
+  # ------------------------------- Calibration --------------------------------
+  beep(2); beep(2); beep(2)
+  
+  for (i in seq_len(nrow(dd))) {
+    pb$tick()  # advance bar
+    
+    label.name <- if (isTRUE(is.na(dd$Depth[i]) || dd$Depth[i]==""))
+      paste0(dd$Lab[i],"-",dd$Sample[i],"-",i) else
+        paste0(dd$Lab[i],"-",dd$Sample[i]," sample at ",dd$Depth[i]," cm")
+    
+    rsv   <- suppressWarnings(as.numeric(dd$Delta.R[i]))
+    sdrsv <- suppressWarnings(as.numeric(dd$Delta.R.SD[i]))
+    c14   <- suppressWarnings(as.numeric(dd$X14C.BP[i]))
+    sdc14 <- suppressWarnings(as.numeric(dd$X14C.Age.SD[i]))
+    marC  <- suppressWarnings(as.numeric(dd$Marine.Carbon[i]))
+    
+    if (is.na(dd$CalCurve[i]) || length(dd$CalCurve[i])!=1){
+      beep(7); stop("You must choose a calibration curve for: ", label.name)
     }
-  }
-}
-##########################################
-#create or open folder with specified name
-file=paste0(dct,"/",outy)
-setwd(file)
-f=dd$Lab[i]
-if (file.exists(f)) {
-  cat("The outcome folder already exists", sep="\n\n")
-} else {
-  dir.create(f)
-}
-#outcome folder
-folder=paste0(file,"/",f)
-setwd(folder)
-###########################################
-#Plotting
-c14=NULL
-sdc14=NULL
-rsv=NULL
-sdrsv=NULL
-
-for( i in 1:length(dd$Sample)){
-  rsv=as.numeric(dd$Delta.R[i])
-  sdrsv=as.numeric(dd$Delta.R.SD[i])
-  c14=as.numeric(dd$X14C.BP[i])
-  sdc14=as.numeric(dd$X14C.Age.SD[i])
-  
-  if(sum(is.null(c14)==T,is.null(sdc14)==T,na.rm=T)>0){
-    warning("Can not calibrate dates: null value", sep="\n\n")
-    next()
-  }else{
-    if(sum(is.na(c14)==T,is.na(sdc14)==T)>0){
-      warning("Can not calibrate dates: NA value", sep="\n\n")
+    
+    # Curve (do not overwrite the 'curve' argument)
+    curve_i <- dd$CalCurve[i]
+    if (is.numeric(curve_i)) {
+      curve_i <- c("intcal20","marine20","shcal20")[as.integer(curve_i)]
+    }
+    curve_i <- tolower(as.character(curve_i))
+    
+    # Marine/terrestrial mixing
+    if (is.na(marC) || !dplyr::between(marC,0,100)){
+      beep(7); stop("Marine.Carbon must be between 0 and 100 (", label.name,")")
+    }
+    if (marC == 100) curve_i <- "marine20"
+    if (marC == 0){
+      if (is.na(rsv))   rsv <- 0
+      if (is.na(sdrsv)) sdrsv <- 0
+    }
+    if (marC > 0 && marC < 100){
+      cc2 <- if (curve_i %in% c("intcal20","marine20","intcal13","nh1","nh2","nh3",
+                                "nh1_monthly","nh2_monthly","nh3_monthly")) "IntCal20" else "SHCal20"
+      try(IntCal::mix.ccurves(proportion = marC/100, cc1="Marine20", cc2=cc2,
+                              name = "mixed.marine.terrigenous.14C",
+                              dir = c(), offset = c(0,0), sep = "\t"),
+          silent=TRUE)
+      curve_i <- "mixed.marine.terrigenous"
+    }
+    
+    # NA guard
+    if (is.na(c14) || is.na(sdc14)){
+      warning("Cannot calibrate (NA) at ", label.name); next()
+    }
+    if (is.na(rsv))   { rsv <- 0;   warning("\u0394R is NA; using 0 in ", label.name) }
+    if (is.na(sdrsv)) { sdrsv <- 0; warning("\u0394R.SD is NA; using 0 in ", label.name) }
+    
+    # Curve range
+    curv <- IntCal::ccurve(curve_i)
+    pp <- sum((c14 - sdc14 - rsv - sdrsv) <= min(curv$V2 - curv$V3),
+              (c14 + sdc14 + rsv + sdrsv) >= max(curv$V2), na.rm=TRUE)
+    
+    # Output folder per lab
+    lab_dir <- get_lab_dir(dd$Lab[i])
+    
+    # Out of range => empty native PNG and continue
+    if (pp == 1){
+      plot.native <-
+        ggplot2::ggplot()+
+        ggplot2::theme_void()+
+        ggplot2::geom_text(ggplot2::aes(0,0,label=paste0("Cannot calibrate: ",label.name)))
+      
+      ggplot2::ggsave(filename=file.path(lab_dir, paste0(label.name,".native.png")),
+                      dpi=res.native, width=width.native, height=height.native,
+                      units=units.native, plot=plot.native)
+      message("\nOut of curve range: ", label.name)
       next()
-    }else{
-      if(sum(curve=="marine20"&((c14-sdc14-rsv-sdrsv)<603),curve=="marine20"&((c14+sdc14+rsv+sdrsv)>50000),na.rm = T)==1){ 
-  
-        cat(paste0("Can´t plotted date beyond ",curve," calibration curve!: Convencial age ",dd$X14C.BP[i],"\u00B1",dd$X14C.Age.SD[i]), sep="\n\n")
-        next()
-      }else{
-        if(is.na(rsv)|is.null(rsv)==1){
-          rsv=0
-        }
-        if(is.na(sdrsv)|is.null(sdrsv)==1){
-          sdrsv=0 
-        }
-        png(paste0(dd$Sample[i],".plot.png"),width = 200, heigh = 200, units = 'mm', res =1200)
-        calibrate(age=c14, error=sdc14, cc = curve, prob=sigma, yr.steps=1, threshold=5e-04, rounded=2, reservoir=c(rsv,sdrsv),legend.cex = 1,)
-        dev.off()
-        
-        if(sum(tables1==show.table)>=1){
-          x11()
-          plot.new()
-          calibrate(age=c14, error=sdc14, cc = curve, prob=sigma, yr.steps=1, threshold=5e-04, rounded=2, reservoir=c(rsv,sdrsv),legend.cex = 1)
-          dev.off()
-          }
-        
-        dr=as.data.frame(get(paste0("rrr",i))[1])
-        dr[[2]]=1000*dr[[2]]
-        
-        if(sum(is.na(dd$Depth[i]),is.null(dd$Depth[i]),dd$Depth[i]=="",na.rm = T)>0){
-          label.name=paste0(dd$Lab[i],"-",dd$Sample[i]) 
-        }else{
-          label.name=paste0(dd$Lab[i],"-",dd$Sample[i]," sample on ",dd$Depth[i],"cm")  
-        }
-
-        if (is.numeric(curve)) {
-        if (curve==1) 
-          curve="intcal20"
-        else if (curve==2) 
-          curve="marine20"
-        else if (curve==3) 
-          curve="shcal20"
-        }
-        
-        medio=data.frame(cbind(x=dd$mean[i],y=dr$V2[which(dr$cal.BP==trunc(dd$mean[i]))][1],lab=rep("Mean",length(dd$mean[i]))),col=rep("gray",length(dd$mean[i])))
-        mediana=data.frame(cbind(x=dd$median[i],y=dr$V2[which(dr$cal.BP==trunc(dd$median[i]))][1],lab=rep("Median",length(dd$median[i]))),col=rep("green",length(dd$median[i])))
-        maximo=data.frame(cbind(x=dd$max[i],y=dr$V2[which(dr$cal.BP==trunc(dd$max[i]))][1],lab=rep("Maximum",length(dd$max[i]))),col=rep("black",length(dd$max[i])))
-        eti=data.frame(rbind(medio,mediana,maximo))
-        colnames(eti)=c("x","y","lab","col")
-        eti$x=as.numeric(eti$x)
-        eti$y=as.numeric(eti$y)
-        
-        if(sum(colour1==colour)==1){
-        
-        plotting=ggplot(data=dr,aes(x=dr[[1]], y=dr[[2]]))+
-          geom_line(linewidth =.1,colour = "black")+
-          geom_polygon(data=dr,aes(x=dr[[1]], y=dr[[2]]+0.001),alpha=0.1,colour ="gray",linewidth =.1)+
-          geom_area(data=dr[which(dr[[1]]<dd$upper[i]*1.0001),], aes(x=dr[which(dr[[1]]<dd$upper[i]*1.001),][[1]], y=dr[which(dr[[1]]<dd$upper[i]*1.001),][[2]]),fill ="white")+
-          geom_area(data=dr[which(dr[[1]]>dd$lower[i]*0.9999),], aes(x=dr[which(dr[[1]]>dd$lower[i]*0.999),][[1]], y=dr[which(dr[[1]]>dd$lower[i]*0.999),][[2]]),fill ="white")+
-          
-          geom_segment(aes(y =0,
-                           yend =dr$V2[which(dr$cal.BP==trunc(dd$mean[i]))][1]*.9999,
-                           x=dd$mean[i] ,
-                           xend=dd$mean[i]),
-                           color = "gray40",
-                           alpha = 0.5,
-                           size=.1)+
-          
-          geom_segment(aes(y =0,
-                           yend =dr$V2[which(dr$cal.BP==trunc(dd$median[i]))][1]*.9999,
-                           x=dd$median[i] ,
-                           xend=dd$median[i]),
-                           color = "green",
-                           alpha = 0.5,
-                           size=.5)+
-          
-          geom_segment(aes(y =0,
-                           yend =dr$V2[which(dr$cal.BP==trunc(dd$max[i]))][1]*.9999,
-                           x=dd$max[i] ,
-                           xend=dd$max[i]),
-                           color = "black",
-                           alpha = 1,
-                           size=.3)+
-          
-          geom_segment(aes(y =0,
-                           yend =dr$V2[which(dr$cal.BP==dd$lower[i])][1],
-                           x=dd$lower[i],
-                           xend=dd$lower[i]),color = "blue", size=.5)+
-          
-          geom_segment(aes(y =dr$V2[which(dr$cal.BP==dd$lower[i])][1],
-                           yend =dr$V2[which(dr$cal.BP==dd$lower[i])][1],
-                           x=max(dr$cal.BP),
-                           xend=dd$lower[i]),color = "blue", size=.5)+
-          
-          annotate("text",x=max(dr$cal.BP)*.5+dd$lower[i]*.5,y=dr$V2[which(dr$cal.BP==dd$lower[i])][1]*.95,label="Lower",size = 4,col="blue", fontface = "bold.italic")+
-          annotate("text",x=min(dr$cal.BP)*.5+dd$upper[i]*.5,y=dr$V2[which(dr$cal.BP==dd$upper[i])][1]*.95,label="Upper",size = 4,col="red", fontface = "bold.italic")+
-          
-          geom_segment(aes(y =0,
-                           yend =dr$V2[which(dr$cal.BP==dd$upper[i])][1],
-                           x=dd$upper[i],
-                           xend=dd$upper[i]),color = "red", size=.5)+
-          
-          geom_segment(aes(y =dr$V2[which(dr$cal.BP==dd$upper[i])][1],
-                           yend =dr$V2[which(dr$cal.BP==dd$upper[i])][1],
-                           x=min(dr$cal.BP),
-                           xend=dd$upper[i]),color = "red", size=.5)+
-          geom_segment(aes(y =0,
-                           yend =0,
-                           x=min(dr[[1]],na.rm=T),
-                           xend=max(dr[[1]],na.rm=T)),color = "black", size=.1)+
-          
-          scale_x_continuous(limits = c(min(dr$cal.BP)*.99,max(dr$cal.BP)*1.02),breaks =scales::pretty_breaks(n = 5),guide = "axis_minor")+
-          scale_y_continuous(limits = c(0,max(dr$V2)*1.02),breaks =scales::pretty_breaks(n = 5),guide = "axis_minor")+
-          
-          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.506,y=quantile(dr[[2]])[5]*1.0*1.02,label=label.name, size = 4,col="black")+
-          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.506,y=quantile(dr[[2]])[5]*.97*1.02,label=paste0("Cal.age: ",dd$max[i],"\u00B1",dd$error[i]), size = 4,col="black")+
-          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.506,y=quantile(dr[[2]])[5]*.94*1.02,label=paste0("\u0394R = ",rsv,"\u00B1",sdrsv), size = 4,col="black")+
-          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.506,y=quantile(dr[[2]])[5]*.91*1.02,label=paste0("Probability: ",trunc(100*dd$percent[i])/100,"%"), size = 4,col="black")+
-          annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.506,y=quantile(dr[[2]])[5]*.88*1.02,label=paste0("Cal. curve: ",curve), size = 4,col="black")+
-          
-          geom_text_repel(data= eti, 
-                          aes(x=eti$x,y=eti$y,
-                              label=eti$lab,
-                              segment.colour="black",
-                              col=eti$col,
-                              alpha = 0.5),
-                          bg.color = "gray30", # shadow colour
-                          bg.r = .05,         # shadow radius
-                          force   = 1,
-                          vjust = 0,
-                          hjust = 0,
-                          segment.size =.15,
-                          segment.curve= -.3,
-                          min.segment.length = unit(.15,'lines'),
-                          size=4,
-                          nudge_y =.01,
-                          nudge_x =0,
-                          fontface = 'bold',
-                          label.padding=5,
-                          point.padding = unit(1,'lines'),
-                          segment.ncp =3,
-                          box.padding = unit(1,'lines'),
-                          arrow = arrow(length = unit(0.0075, "npc")),
-                          max.time = Inf,
-                          show.legend = FALSE)+
-          
-          scale_color_manual(values =alpha(c("black","gray","green"),1))+
-            
-          labs(title=paste0("Relative probability of sample"),x ="Cal yr BP", y = labely)+
-          theme_classic()+
-          theme(axis.ticks.length = unit(0.2,"cm"),
-                ggh4x.axis.ticks.length.minor = rel(0.5),
-                axis.ticks = element_line(size = 0.5),
-                ggh4x.axis.ticks.length.minor = rel(0.5),
-                axis.text.x=element_text(size=11,colour = "black",face="bold",vjust=0),
-                axis.text.y=element_text(size=11,colour = "black",face="bold",hjust=1),
-                axis.title=element_text(size=14,face="bold"),
-                title = element_text(size=16,colour = "black",face="bold"))
-        
-          ggsave(paste0(label.name,".png"), dpi = 900,   width = 250,
-               height = 159,unit="mm",plot =plotting)
-          
-          }
-        if(sum(colour0==colour)==1){
-          
-            plotting=ggplot(data=dr,aes(x=dr[[1]], y=dr[[2]]))+
-              geom_line(linewidth =.1,colour = "black")+
-              geom_polygon(data=dr,aes(x=dr[[1]], y=dr[[2]]+0.001),alpha=0.1,colour ="gray60",linewidth =.1)+
-              geom_area(data=dr[which(dr[[1]]<dd$upper[i]*1.0001),], aes(x=dr[which(dr[[1]]<dd$upper[i]*1.001),][[1]], y=dr[which(dr[[1]]<dd$upper[i]*1.001),][[2]]),fill ="white")+
-              geom_area(data=dr[which(dr[[1]]>dd$lower[i]*0.9999),], aes(x=dr[which(dr[[1]]>dd$lower[i]*0.999),][[1]], y=dr[which(dr[[1]]>dd$lower[i]*0.999),][[2]]),fill ="white")+
-              
-              geom_segment(aes(y =0,
-                               yend =dr$V2[which(dr$cal.BP==trunc(dd$mean[i]))][1]*.9999,
-                               x=dd$mean[i] ,
-                               xend=dd$mean[i]),
-                           color = "gray40",
-                           alpha = 0.75,
-                           size=.1)+
-              
-              geom_segment(aes(y =0,
-                               yend =dr$V2[which(dr$cal.BP==trunc(dd$median[i]))][1]*.9999,
-                               x=dd$median[i] ,
-                               xend=dd$median[i]),
-                           color = "gray80",
-                           alpha = 1,
-                           size=.5)+
-              
-              geom_segment(aes(y =0,
-                               yend =dr$V2[which(dr$cal.BP==trunc(dd$max[i]))][1]*.9999,
-                               x=dd$max[i] ,
-                               xend=dd$max[i]),
-                           color = "black",
-                           alpha = 1,
-                           size=.3)+
-              
-              geom_segment(aes(y =0,
-                               yend =dr$V2[which(dr$cal.BP==dd$lower[i])][1],
-                               x=dd$lower[i],
-                               xend=dd$lower[i]),color = "gray20", size=.5)+
-              
-              geom_segment(aes(y =dr$V2[which(dr$cal.BP==dd$lower[i])][1],
-                               yend =dr$V2[which(dr$cal.BP==dd$lower[i])][1],
-                               x=max(dr$cal.BP),
-                               xend=dd$lower[i]),color = "gray20", size=.5)+
-              
-              geom_segment(aes(y =0,
-                               yend =dr$V2[which(dr$cal.BP==dd$upper[i])][1],
-                               x=dd$upper[i],
-                               xend=dd$upper[i]),color = "gray20", size=.5)+
-              
-              geom_segment(aes(y =dr$V2[which(dr$cal.BP==dd$upper[i])][1],
-                               yend =dr$V2[which(dr$cal.BP==dd$upper[i])][1],
-                               x=min(dr$cal.BP),
-                               xend=dd$upper[i]),color = "gray20", size=.5)+
-              geom_segment(aes(y =0,
-                               yend =0,
-                               x=min(dr[[1]],na.rm=T),
-                               xend=max(dr[[1]],na.rm=T)),color = "black", size=.1)+
-              
-              annotate("text",x=min(dr$cal.BP)*.5+dd$upper[i]*.5,y=dr$V2[which(dr$cal.BP==dd$upper[i])][1]*.95,label="Upper",size = 4,col="gray5", fontface = "bold.italic")+
-              annotate("text",x=max(dr$cal.BP)*.5+dd$lower[i]*.5,y=dr$V2[which(dr$cal.BP==dd$lower[i])][1]*.95,label="Lower",size = 4,col="gray5", fontface = "bold.italic")+
-              
-              scale_x_continuous(limits = c(min(dr$cal.BP)*.99,max(dr$cal.BP)*1.02),breaks =scales::pretty_breaks(n = 5),guide = "axis_minor")+
-              scale_y_continuous(limits = c(0,max(dr$V2)*1.02),breaks =scales::pretty_breaks(n = 5),guide = "axis_minor")+
-              
-              annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.506,y=quantile(dr[[2]])[5]*1.0*1.02,label=label.name, size = 4,col="black")+
-              annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.506,y=quantile(dr[[2]])[5]*.97*1.02,label=paste0("Cal.age: ",dd$max[i],"\u00B1",dd$error[i]), size = 4,col="black")+
-              annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.506,y=quantile(dr[[2]])[5]*.94*1.02,label=paste0("\u0394R = ",rsv,"\u00B1",sdrsv), size = 4,col="black")+
-              annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.506,y=quantile(dr[[2]])[5]*.91*1.02,label=paste0("Probability: ",trunc(100*dd$percent[i])/100,"%"), size = 4,col="black")+
-              annotate("text",x=quantile(dr[[1]])[4]*.506+quantile(dr[[1]])[5]*.506,y=quantile(dr[[2]])[5]*.88*1.02,label=paste0("Cal. curve: ",curve), size = 4,col="black")+
-              
-              geom_text_repel(data= eti, 
-                              aes(x=eti$x,y=eti$y,
-                                  label=eti$lab,
-                                  segment.colour="black",
-                                  alpha = 0.5),
-                              color = "white",     # text color
-                              bg.color = "grey30", # shadow color
-                              bg.r = 0.05,         # shadow radius
-                              force   = 1,
-                              vjust = 0,
-                              hjust = 0,
-                              segment.size =.15,
-                              segment.curve= -.3,
-                              min.segment.length = unit(.15,'lines'),
-                              size=4,
-                              nudge_y =.01,
-                              nudge_x =0,
-                              fontface = 'bold',
-                              label.padding=5,
-                              point.padding = unit(1,'lines'),
-                              segment.ncp =3,
-                              box.padding = unit(1,'lines'),
-                              arrow = arrow(length = unit(0.0075, "npc")),
-                              max.time = Inf,
-                              show.legend = FALSE)+
-              
-              labs(title=paste0("Relative probability of sample"),x ="Cal yr BP", y = labely)+
-              theme_classic()+
-              theme(axis.ticks.length = unit(0.2,"cm"),
-                    ggh4x.axis.ticks.length.minor = rel(0.5),
-                    axis.ticks = element_line(size = 0.5),
-                    ggh4x.axis.ticks.length.minor = rel(0.5),
-                    axis.text.x=element_text(size=11,colour = "black",face="bold",vjust=0),
-                    axis.text.y=element_text(size=11,colour = "black",face="bold",hjust=1),
-                    axis.title=element_text(size=14,face="bold"),
-                    title = element_text(size=16,colour = "black",face="bold"))
-            
-            ggsave(paste0(label.name,".png"), dpi = 900,   width = 250,
-                   height = 159,unit="mm",plot =plotting)
-          
-          }
-        
-          if(length(which(plots1==show.plot))>=1){
-          x11()
-          plot.new()
-          plotting
-          dev.off()
-        }else{
-          warning("Error in plotting of Calibration curve")
-        }
+    }
+    
+    # Calibration
+    res <- IntCal::calibrate(age=c14, error=sdc14, cc=curve_i,
+                             prob=sigma_prob, yr.steps=1, threshold=5e-04,
+                             rounded=round, reservoir=c(rsv,sdrsv), legend.cex=1)
+    
+    # Save native PNG
+    png(file.path(lab_dir, paste0(label.name,".native.png")),
+        width=width.native, height=height.native, units=units.native, res=res.native)
+    invisible(IntCal::calibrate(age=c14, error=sdc14, cc=curve_i,
+                                prob=sigma_prob, yr.steps=1, threshold=5e-04,
+                                rounded=round, reservoir=c(rsv,sdrsv), legend.cex=1))
+    dev.off()
+    
+    if (plot_mode == "both" && interactive()){
+      print(res)  # package base plot
+    }
+    
+    # Extract density and intervals
+    gg <- as.data.frame(res[[2]])
+    if (isTRUE(csv_semicolon)) {
+      utils::write.csv2(gg, file=file.path(lab_dir, paste0(label.name,".",sigma_prob,".probability.csv")),
+                        row.names=FALSE)
+    } else {
+      utils::write.csv(gg,  file=file.path(lab_dir, paste0(label.name,".",sigma_prob,".probability.csv")),
+                       row.names=FALSE)
+    }
+    
+    dr  <- as.data.frame(res[[1]]); colnames(dr) <- c("cal.BP","V2")
+    den <- dr
+    
+    # Main interval
+    if (nrow(gg) == 1){
+      dd$lower[i]   <- gg$from[1]; dd$upper[i] <- gg$to[1]; dd$percent[i] <- gg$perc[1]
+    } else {
+      j <- which.max(gg$perc)
+      dd$lower[i]   <- gg$from[j]; dd$upper[i] <- gg$to[j]; dd$percent[i] <- gg$perc[j]
+    }
+    
+    # Median, mean and mode (maximum)
+    sel <- which(den$cal.BP >= dd$upper[i] & den$cal.BP <= dd$lower[i])
+    if (length(sel) > 1){
+      dens_sel <- den$V2[sel]; x_sel <- den$cal.BP[sel]
+      csum <- cumsum(dens_sel)/sum(dens_sel)
+      dd$median[i] <- x_sel[which.max(csum >= 0.5)]
+      dd$mean[i]   <- sum(x_sel * dens_sel) / sum(dens_sel)
+      dd$max[i]    <- x_sel[which.max(dens_sel)]
+      dd$error[i]  <- max(abs(dd$lower[i]-dd$max[i]), abs(dd$max[i]-dd$upper[i]))
+    }
+    
+    # Clamp to curve range / 0
+    limx <- range(IntCal::ccurve(curve_i)$V1, na.rm=TRUE)
+    dd$max[i]   <- min(max(dd$max[i], 0), limx[2]*.9999)
+    dd$lower[i] <- min(dd$lower[i],      limx[2]*.9999)
+    dd$upper[i] <- max(dd$upper[i],      0)
+    if (!is.na(dd$mean[i])){
+      dd$mean[i] <- min(max(dd$mean[i],0), limx[2]*.9999)
+    }
+    
+    # Polygons and ordered/deduplicated table
+    dr2 <- den[is.finite(den$cal.BP) & is.finite(den$V2) & den$V2 >= 0, ]
+    dr2 <- dr2[order(dr2$cal.BP), ]
+    dr2 <- dplyr::distinct(dr2, cal.BP, .keep_all=TRUE)
+    x_left  <- min(dr2$cal.BP); x_right <- max(dr2$cal.BP)
+    poly_dr <- rbind(
+      c(x_left,  0),
+      c(x_left,  dr2$V2[1]),
+      as.matrix(dr2[,c("cal.BP","V2")]),
+      c(x_right, 0),
+      c(x_left,  0)
+    )
+    poly_dr <- as.data.frame(poly_dr); names(poly_dr) <- c("x","y")
+    
+    # Confidence area
+    da <- dr2[dr2$cal.BP > dd$upper[i] & dr2$cal.BP < dd$lower[i], c("cal.BP","V2")]
+    if (nrow(da) == 0) warning("Empty confidence polygon in ", label.name)
+    names(da) <- c("x","y")
+    
+    # Limits and labels
+    xr       <- range(poly_dr$x, na.rm=TRUE); pad <- diff(xr)*0.05
+    xlim_rev <- c(xr[2]+pad, xr[1]-pad)
+    ylim_ok  <- c(0, max(poly_dr$y, na.rm=TRUE)*1.02)
+    
+    qx   <- stats::quantile(dr2$cal.BP, na.rm=TRUE)
+    qyM  <- max(dr2$V2, na.rm=TRUE)
+    lab_x <- mean(c(qx[4], qx[5]))  # between Q3 and max
+    lab_y <- 0.96*qyM
+    
+    # Robust y-height for a given x (special case x=0 uses max V2 at x=0)
+    y_at <- function(x) {
+      if (is.na(x)) return(NA_real_)
+      if (abs(x) < 1e-12) {
+        y0 <- suppressWarnings(max(den$V2[den$cal.BP == 0], na.rm = TRUE))
+        if (is.finite(y0)) return(y0)
       }
-    }    
+      approx(dr2$cal.BP, dr2$V2, x, rule = 2)$y
+    }
+    
+    cols <- if (use_color) {
+      c(Mean = "gray50", Median = "green",  Maximum = "black")
+    } else {
+      c(Mean = "white", Median = "white", Maximum = "white")
+    }
+    
+    # Repelled labels (Mean, Median, Maximum) using y_at()
+    eti <- data.frame(
+      x   = c(dd$mean[i],   dd$median[i],   dd$max[i]),
+      y   = c(y_at(dd$mean[i]), y_at(dd$median[i]), y_at(dd$max[i])),
+      lab = factor(c("Mean","Median","Maximum"), levels = names(cols)),
+      stringsAsFactors = FALSE
+    )
+    eti <- stats::na.omit(eti)
+    
+    # ------------------------------- Final plot --------------------------------
+    plotting <-
+      ggplot2::ggplot(dr2, ggplot2::aes(x = cal.BP, y = V2)) +
+      ggplot2::geom_polygon(
+        data = poly_dr,
+        ggplot2::aes(x = x, y = y, group = 1),
+        fill = "white", colour = "black", linewidth = .1, inherit.aes = FALSE
+      ) +
+      ggplot2::geom_area(
+        data = da, ggplot2::aes(x = x, y = y),
+        fill = "gray90", colour = "black", linewidth = .1, inherit.aes = FALSE
+      ) +
+      ggplot2::coord_cartesian(ylim = ylim_ok, expand = FALSE) +
+      ggplot2::geom_segment(
+        ggplot2::aes(x = dd$mean[i], xend = dd$mean[i], y = 0, yend = y_at(dd$mean[i])),
+        color = if (use_color) "gray50" else "gray60", alpha = .6, linewidth = .2
+      ) +
+      ggplot2::geom_segment(
+        ggplot2::aes(x = dd$median[i], xend = dd$median[i], y = 0, yend = y_at(dd$median[i])),
+        color = if (use_color) "green" else "gray25", alpha = 1, linewidth = .35
+      ) +
+      ggplot2::geom_segment(
+        ggplot2::aes(x = dd$max[i], xend = dd$max[i], y = 0, yend = y_at(dd$max[i])),
+        color = "black", alpha = 1, linewidth = .5
+      ) +
+      ggplot2::scale_x_reverse(
+        limits = xlim_rev,
+        guide  = ggplot2::guide_axis(minor.ticks = TRUE),
+        breaks = scales::pretty_breaks(n = 4),
+        expand = ggplot2::expansion(mult = c(0, 0.02))
+      ) +
+      ggplot2::scale_y_continuous(
+        guide  = ggplot2::guide_axis(minor.ticks = TRUE),
+        breaks = scales::pretty_breaks(n = 4),
+        expand = ggplot2::expansion(mult = c(0, 0.02))
+      ) +
+      ggplot2::annotate("text", x = lab_x, y = lab_y,
+                        label = paste0("Cal. age: ", dd$max[i], " \u00B1 ", dd$error[i]),
+                        size = 4) +
+      ggplot2::annotate("text", x = lab_x, y = lab_y*0.97,
+                        label = paste0("\u0394R = ", rsv, " \u00B1 ", sdrsv), size = 4) +
+      ggplot2::annotate("text", x = lab_x, y = lab_y*0.94,
+                        label = paste0("Probability: ", round(dd$percent[i], 2), "%"), size = 4) +
+      ggplot2::annotate("text", x = lab_x, y = lab_y*0.91,
+                        label = paste0("Cal. curve: ", curve_i), size = 4) +
+      
+      ggrepel::geom_text_repel(data= eti, 
+                          ggplot2::aes(x=x,y=y,
+                          label=lab,
+                          colour=lab,
+                          segment.colour="black",
+                          alpha = 0.5),
+                      bg.color = if (use_color) scales::alpha("white", 0.5) else scales::alpha("grey30", 0.5),
+                      bg.r = 0.05,         # shadow radius
+                      force   =1,
+                      vjust = 0,
+                      hjust = 0,
+                      min.segment.length = unit(.15,'lines'),
+                      nudge_y =0,
+                      nudge_x =0,
+                      fontface = 'bold',
+                      label.r=.3,
+                      point.padding = unit(.5,'lines'),
+                      segment.ncp =3,
+                      segment.size  = 0.05,
+                      box.padding = unit(1.25,'lines'),
+                      arrow =grid::arrow(ends = "last", type = "closed",angle = 15, length = grid::unit(.1, "lines")),
+                      max.iter = Inf,
+                      show.legend = FALSE,
+                      verbose=FALSE,
+                      inherit.aes = TRUE
+      )+
+      
+      ggplot2::scale_colour_manual(values = cols, guide = "none") +
+      ggplot2::labs(
+        title = "Relative probability of sample",
+        x = "Cal yr BP",
+        y = expression(paste("Density"))
+      ) +
+      ggplot2::theme_classic() +
+      ggplot2::theme(
+        axis.ticks.length = grid::unit(0.2, "cm"),
+        ggh4x.axis.ticks.length.minor = ggplot2::rel(0.5),
+        axis.ticks  = ggplot2::element_line(linewidth = 0.5),
+        axis.text.x = ggplot2::element_text(size = 11, colour = "black", face = "bold", vjust = 0),
+        axis.text.y = ggplot2::element_text(size = 11, colour = "black", face = "bold", hjust = 1),
+        axis.title  = ggplot2::element_text(size = 14, face = "bold"),
+        title       = ggplot2::element_text(size = 16, colour = "black", face = "bold")
+      )
+    
+    # Save final figure
+    ggplot2::ggsave(filename=file.path(lab_dir, paste0(label.name,".png")),
+                    dpi=dpi.calib, width=width.calib, height=height.calib,
+                    units=units.calib, plot=plotting)
+    
+    if (plot_mode == "both" && interactive()){
+      print(plotting)
+    }
+  } # end for
+  
+  # ------------------------------- OUTCOMES tables ----------------------------
+  dd$mean    <- round(dd$mean)
+  dd$percent <- round(dd$percent)
+  dd$max[which(dd$max==1)] <- 0
+  
+  # CSV (by lab of the last row)
+  last_lab <- dd$Lab[nrow(dd)]
+  if (isTRUE(csv_semicolon)){
+    utils::write.csv2(dd, file=file.path(out_root, paste0(last_lab,".calibrated.csv")), row.names=FALSE)
+  } else {
+    utils::write.csv(dd,  file=file.path(out_root, paste0(last_lab,".calibrated.csv")),  row.names=FALSE)
   }
-}
-
-################################################################################
-#OUTCOME
-
-dd$mean=round(dd$mean)
-write.csv(dd,paste0(dd$`Lab`[i],".calibrated.csv"),sep=",",dec=".",col.names = TRUE)
-
-#plot input table
-d1<- input[-c(1),]
-colnames(d1)=l
-myt=ttheme_minimal(base_size = 12, base_colour = "black", base_family = "",
-                   parse = T , padding = unit(c(2,2), "mm"),colhead=list(fg_params = list(parse=TRUE), fontface=4L,bg_params=list(fill="gray90")))
-
-png(paste0(dd$`Lab`[1],".input.png"), width = 20+ncol(d1)*425/15, heigh = 20+100/19*nrow(d1), units = 'mm', res =1200)
-grid.table(d1,rows = NULL,theme=myt)
-dev.off()
-
-colnames(dd)[1:length(l)]=l
-#plot output table
-dd$percent=round(dd$percent)
-png(paste0(dd$`Lab code`[1],".output.png"), width = 20+ncol(dd)*525/22, heigh = 20+100/19*nrow(dd), units = 'mm', res =1200)
-grid.table(dd,rows = NULL,theme=myt)
-dev.off()
-
-if(length(show.table)!=1){
-  beep(7)
-  stop("table value should be one item")
-}else{
-if(length(which(tabless==show.table))<1){
-  beep(7)
-  stop("Table value don´t allowed, just to be TRUE,FALSE,T,F,1,0,yes or no")
-}else{  
-  if(sum(tables1==show.table)>=1){
-  x11();grid.table(d1,rows = NULL,theme=myt)
-  x11();grid.table(dd,rows = NULL,theme=myt)
-  }else{
-    warning("Error in plotting of table")
-   }
-  }  
- }
-setwd(dct)
-end=Sys.time()#ending time
-tem=round(end-begin,2)
-cat("Working time was estimated how", sep="\n\n")
-print(tem)
-cat(paste0("Calibration finished of ",dd$`Lab code`[i]," successfully!!", sep="\n\n"))
-beep(8)#mario bros sound
+  
+  # PNG tables
+  l <- c("Lab code", "Sample code",expression(phantom()^14*C~"\n(yrs BP)"),
+         expression(phantom()^14*C~SD~"\n(yrs BP)"), "Lab Error", "Age Span",
+         "Uncorrected~delta^14*C","Uncorrected~SD~delta^14*C","delta^13*C",
+         "delta^13*C~SD" ,"Delta*R~(yrs)",
+         "Delta*R~SD~(yrs)","Marine carbon\n(%)","Description","Calibration~curve",
+         "Depth~(cm)")
+  d1 <- input[-1,]; colnames(d1) <- l
+  myt <- gridExtra::ttheme_minimal(
+    base_size=12, base_colour="black", parse=TRUE,
+    padding=grid::unit(c(2,2), "mm"),
+    colhead=list(fg_params=list(parse=TRUE), fontface=4L, bg_params=list(fill="gray90"))
+  )
+  
+  png(file.path(out_root, paste0(dd$`Lab`[1],".input.png")),
+      width = 20+ncol(d1)*425/15, height = 20+100/19*nrow(d1), units='mm', res=1200)
+  gridExtra::grid.table(d1, rows=NULL, theme=myt); dev.off()
+  
+  colnames(dd)[1:length(l)] <- l
+  png(file.path(out_root, paste0(dd$`Lab code`[1],".output.png")),
+      width = 20+ncol(dd)*525/22, height = 20+100/19*nrow(dd), units='mm', res=1200)
+  gridExtra::grid.table(dd, rows=NULL, theme=myt); dev.off()
+  
+  if (isTRUE(table_plot) && interactive()){
+    gridExtra::grid.table(d1, rows=NULL, theme=myt)
+    gridExtra::grid.table(dd, rows=NULL, theme=myt)
+  }
+  
+  end <- Sys.time()
+  message("Working time: ", round(end - begin, 2)," minutes")
+  beep(8)
+  invisible(dd)
 }
 ################################################################################
 #to use a calibR how function which managed same way that previous lines of this script.  
-source("calib2.R")#Call up a function
+source("calib3.R")#Call up a function
 #INPUT
 #data is gonna calibrate
-d2=read.csv("mejillones2.csv",sep=";",dec=".",header = TRUE)
-calibR2(input=d2,sigma = 0.68,curve="marine20",show.table = F,show.plot =F,colour="no")
+d2=read.csv("mejillones.csv",sep=";",dec=".",header = TRUE)
+calibR3(input=d2,sigma = 0.68,curve="marine20",show.table = F,show.plot =F,colour=1)
 
 ################################################################################
 ```
@@ -676,4 +521,5 @@ calibR2(input=d2,sigma = 0.68,curve="marine20",show.table = F,show.plot =F,colou
   - Stuiver, M., & Reimer, P. J. (1993). EXTENDED 14C DATA BASE AND REVISED CALIB 3.014C AGE CALIBRATION PROGRAM. Radiocarbon, 35(1), 215–230. https://doi.org/10.14210/bjast.v17.n2.pNB5-8
 
   - Guiñez, M., Valdés, J., Sifeddine, A., Boussafir, M., & Dávila, P. M. (2014). Anchovy population and ocean-climatic fluctuations in the Humboldt Current System during the last 700 years and their implications. Palaeogeography, Palaeoclimatology, Palaeoecology, 415, 210–224. https://doi.org/10.1016/j.palaeo.2014.08.026
-  - https://github.com/jasb3110/CalibR/blob/02cb2fef4994c204081e9a7e28c4e1e55471d8ce/calib.R
+  - https://github.com/jasb3110/CalibR/blob/02cb2fef4994c204081e9a7e28c4e1e55471d8ce/calib.R - Old version
+  - https://github.com/jasb3110/CalibR/blob/4852cd55965a5c007e0de92ed9fe4c5273570682/calib2.R - Last version
