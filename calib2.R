@@ -24,7 +24,6 @@ calibR2=function(input=input,sigma=c(1,2,3,.68,.95,.99,"1s","2s","3s","1sigma","
   require("scales")
   require("ggrepel")
   require("beepr")
-  require("ggrepel")
 ################################################################################
   begin=Sys.time()#Begining time
   if (missing(input)){beep(7);stop("Didn´t find a input data")}
