@@ -30,13 +30,13 @@ In the first plot, you can refer to the format of the outcome. The x-axis repres
 
 The second plot is similar to the previous one; however, it is presented in grayscale.
 
-|[![Plot.](calout/mejillones/mejillones-mejillones-1%20sample%20on%2011cm-gray.png)](https://github.com/jasb3110/CalibR/blob/d53c279aa35f67b1199f0f94bf6d84105b8e633a/mejillones-mejillones-1%20sample%20on%2011cm-gray.png)|
+|[![Plot.](calout/mejillones-gray%20version/mejillones-mejillones-18%20sample%20at%2054%20cm.png)](https://github.com/jasb3110/CalibR/blob/45dfc25c6e44d5bb47df28493aa66481c0ccbc4a/calout/mejillones-gray%20version/mejillones-mejillones-18%20sample%20at%2054%20cm.png)|
 |:--:| 
 |*Picture 2. Outcome plot of sample on 54cm in gray-scale (Guiñez et al. 2014)*|
 
 Finally, This script is created an outcome table where you are able to find the maximum, median, and mean calibrate age in columns. the outcome table will be saved together with plots [(Table 2.)](calout/mejillones/mejillones.output.png) and I attached a function in source [(4)](https://github.com/jasb3110/CalibR/blob/36366a16fc9cf5e4c5f070f9b17be2f357915dc5/calib.R).
 
-|[![Table 2.](calout/mejillones/mejillones.output.png)](https://github.com/jasb3110/CalibR/blob/b4b7f34fe5c1becce1b3b3b20495344bc8da6f60/calout/mejillones/mejillones.output.png)|
+|[![Table 2.](calout/mejillones.output.png)](https://github.com/jasb3110/CalibR/blob/45dfc25c6e44d5bb47df28493aa66481c0ccbc4a/calout/mejillones.output.png)|
 |:--:| 
 |*Table 2. Output table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*|
 
@@ -52,7 +52,7 @@ Some plots may appear distorted, so you should adjust this script to improve the
 
 ## R code
 
-Finally, it were showed a source of Calib2.R[(4)](#reference). 
+Finally, it were showed a source of Calib3.R[(4)](#reference). 
 ```markdown
 #########################################################################
 calibR3<- function(
@@ -520,9 +520,8 @@ calibR3(input=d2,sigma = 0.68,curve="marine20",show.table = F,show.plot =F,colou
 ## Reference
 
   - Intcal package in R (2022). https://cran.r-project.org/web/packages/IntCal/index.html
-
   - Stuiver, M., & Reimer, P. J. (1993). EXTENDED 14C DATA BASE AND REVISED CALIB 3.014C AGE CALIBRATION PROGRAM. Radiocarbon, 35(1), 215–230. https://doi.org/10.14210/bjast.v17.n2.pNB5-8
-
   - Guiñez, M., Valdés, J., Sifeddine, A., Boussafir, M., & Dávila, P. M. (2014). Anchovy population and ocean-climatic fluctuations in the Humboldt Current System during the last 700 years and their implications. Palaeogeography, Palaeoclimatology, Palaeoecology, 415, 210–224. https://doi.org/10.1016/j.palaeo.2014.08.026
-  - https://github.com/jasb3110/CalibR/blob/02cb2fef4994c204081e9a7e28c4e1e55471d8ce/calib.R - Old version
-  - https://github.com/jasb3110/CalibR/blob/4852cd55965a5c007e0de92ed9fe4c5273570682/calib2.R - Last version
+  - https://github.com/jasb3110/CalibR/blob/02cb2fef4994c204081e9a7e28c4e1e55471d8ce/calib.R  - version 1
+  - https://github.com/jasb3110/CalibR/blob/4852cd55965a5c007e0de92ed9fe4c5273570682/calib2.R - version 2
+  - https://github.com/jasb3110/CalibR/blob/45dfc25c6e44d5bb47df28493aa66481c0ccbc4a/calib3.R - version 3 - Last version
