@@ -9,20 +9,22 @@ Initially, this R script was designed to replicate the radiocarbon calibration r
 - [Reference](#reference)
 
 ## Proposal 
-calibR3() is an R function designed to replicate and enhance radiocarbon (^14^C) calibration, inspired by Calib 8.02, providing:
+"calibR3"" is an R function designed to replicate and enhance radiocarbon (14^C) calibration, inspired by Calib 8.02, providing:
+
 - Flexible calibration curves (intcal20, marine20, shcal20, etc.), including mixed marine–terrestrial cases.
 - Explicit sigma control (1σ/2σ/3σ or any probability between 0–1).Reproducible outputs: native calibration PNG, ggplot2-enhanced PNG, CSV with probability density, and input/output tables as PNG.
 - Smart labels for mean, median, maximum values with ggrepel.
+
 Below, I’ve included the script and an example using published data from Guiñez et al., 2014[(3)](#reference).
 The input table is displayed below. It is crucial to sort the data in this specific format.
 
-|[![Table 1.](calout/mejillones/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/b4b7f34fe5c1becce1b3b3b20495344bc8da6f60/calout/mejillones/mejillones.input.png)|
+|[![Table 1.](calout/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/45c5c0bdf3854b9ce31530ca285ea5a6f03fc1c9/calout/mejillones.input.png)|
 |:--:| 
 |*Table. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*|
 
 In the first plot, you can refer to the format of the outcome. The x-axis represents the range of calibrated ages, while the y-axis shows the density probability of calibration. The black, green, and gray lines indicate the maximum probability, median, and mean calibrated ages, respectively. Additionally, the blue and red lines denote the calibration limits according to one standard deviation (one sigma: 68%). You can adjust the sigma value if desired.
 
-|[![Plot.](calout/mejillones/mejillones-mejillones-1%20sample%20on%2011cm-colour.png)](https://github.com/jasb3110/CalibR/blob/a4408a033af9d0133c1e0f4176fd189d6ac4074a/calout/mejillones/mejillones-mejillones-1%20sample%20on%2011cm-colour.png)|
+|[![Plot.](calout/mejillones/mejillones-mejillones-18%20sample%20at%2054%20cm.png)](https://github.com/jasb3110/CalibR/blob/45c5c0bdf3854b9ce31530ca285ea5a6f03fc1c9/calout/mejillones/mejillones-mejillones-18%20sample%20at%2054%20cm.png)|
 |:--:| 
 |*Picture 1. Outcome plot of sample on 54cm colour-scale (Guiñez et al. 2014)*|
 
