@@ -10,9 +10,10 @@ Initially, this R script was designed to replicate the radiocarbon calibration r
 
 ## Proposal 
 calibR3() is an R function designed to replicate and enhance radiocarbon (14C) calibration, inspired by Calib 8.02, providing:
-Flexible calibration curves (intcal20, marine20, shcal20, etc.), including mixed marine–terrestrial cases.
-Explicit sigma control (1σ/2σ/3σ or any probability between 0–1).Reproducible outputs: native calibration PNG, ggplot2-enhanced PNG, CSV with probability density, and input/output tables as PNG.
-Smart labels for mean, median, maximum values with ggrepel.Below, I’ve included the script and an example using published data from Guiñez et al., 2014[(3)](#reference).
+- Flexible calibration curves (intcal20, marine20, shcal20, etc.), including mixed marine–terrestrial cases.
+- Explicit sigma control (1σ/2σ/3σ or any probability between 0–1).Reproducible outputs: native calibration PNG, ggplot2-enhanced PNG, CSV with probability density, and input/output tables as PNG.
+- Smart labels for mean, median, maximum values with ggrepel.
+Below, I’ve included the script and an example using published data from Guiñez et al., 2014[(3)](#reference).
 The input table is displayed below. It is crucial to sort the data in this specific format.
 
 |[![Table 1.](calout/mejillones/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/b4b7f34fe5c1becce1b3b3b20495344bc8da6f60/calout/mejillones/mejillones.input.png)|
