@@ -9,7 +9,8 @@ Initially, this R script was designed to replicate the radiocarbon calibration r
 - [Reference](#reference)
 
 ## Proposal 
-"calibR3"" is an R function designed to replicate and enhance radiocarbon (14^C) calibration, inspired by Calib 8.02, providing:
+
+"calibR3" is an R function designed to replicate and enhance radiocarbon (C-14) calibration, inspired by Calib 8.02, providing:
 
 - Flexible calibration curves (intcal20, marine20, shcal20, etc.), including mixed marine–terrestrial cases.
 - Explicit sigma control (1σ/2σ/3σ or any probability between 0–1).Reproducible outputs: native calibration PNG, ggplot2-enhanced PNG, CSV with probability density, and input/output tables as PNG.
