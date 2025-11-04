@@ -1,59 +1,3 @@
-# CalibR
-
-## Contents
-- [Proposal](#proposal)
-- [Instruction](#instruction)
-- [R code](#r-code)
-- [Reference](#reference)
-
-## Proposal 
-
-"calibR4" is an R function designed to replicate and enhance radiocarbon (C-14) calibration, inspired by Calib 8.02, providing:
-
-- Flexible calibration curves (intcal20, marine20, shcal20, etc.), including mixed marine–terrestrial cases.
-- Explicit sigma control (1σ/2σ/3σ or any probability between 0–1).Reproducible outputs: native calibration PNG, ggplot2-enhanced PNG, CSV with probability density, and input/output tables as PNG.
-- Smart labels for mean, median, maximum values with ggrepel.
-
-Below, I’ve included the script and an example using published data from Guiñez et al., 2014[(3)](#reference).
-The input table is displayed below. It is crucial to sort the data in this specific format.
-
-|[![Table 1.](calout/mejillones.input.png)](https://github.com/jasb3110/CalibR/blob/45c5c0bdf3854b9ce31530ca285ea5a6f03fc1c9/calout/mejillones.input.png)|
-|:--:| 
-|*Table. Input table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*|
-
-In the first plot, you can refer to the format of the outcome. The x-axis represents the range of calibrated ages, while the y-axis shows the density probability of calibration. The black, green, and gray lines indicate the maximum probability, median, and mean calibrated ages, respectively. Additionally, the blue and red lines denote the calibration limits according to one standard deviation (one sigma: 68%). You can adjust the sigma value if desired.
-
-|[![Plot.](calout/mejillones/mejillones-mejillones-18%20sample%20at%2054%20cm.png)](https://github.com/jasb3110/CalibR/blob/45c5c0bdf3854b9ce31530ca285ea5a6f03fc1c9/calout/mejillones/mejillones-mejillones-18%20sample%20at%2054%20cm.png)|
-|:--:| 
-|*Picture 1. Outcome plot of sample on 54cm colour-scale (Guiñez et al. 2014)*|
-
-The second plot is similar to the previous one; however, it is presented in grayscale.
-
-|[![Plot.](calout/mejillones-gray%20version/mejillones-mejillones-18%20sample%20at%2054%20cm.png)](https://github.com/jasb3110/CalibR/blob/45dfc25c6e44d5bb47df28493aa66481c0ccbc4a/calout/mejillones-gray%20version/mejillones-mejillones-18%20sample%20at%2054%20cm.png)|
-|:--:| 
-|*Picture 2. Outcome plot of sample on 54cm in gray-scale (Guiñez et al. 2014)*|
-
-Finally, This script is created an outcome table where you are able to find the maximum, median, and mean calibrate age in columns. the outcome table will be saved together with plots [(Table 2.)](calout/mejillones/mejillones.output.png) and I attached a function in source [(4)](https://github.com/jasb3110/CalibR/blob/36366a16fc9cf5e4c5f070f9b17be2f357915dc5/calib.R).
-
-|[![Table 2.](calout/mejillones.output.png)](https://github.com/jasb3110/CalibR/blob/45dfc25c6e44d5bb47df28493aa66481c0ccbc4a/calout/mejillones.output.png)|
-|:--:| 
-|*Table 2. Output table of Radiocarbon samples pulled out Mejillones core (Guiñez et al. 2014)*|
-
-## Instruction
-
-1. Select the whole script and pulse Ctrl+ Enter.
-2. To wait for its outcomes when you will hear Mario Bross sound the means it is finished. 
-3. Bon appetit!!
-
-### WARNING:
-
-Some plots may appear distorted, so you should adjust this script to improve the margins, resolution, or font of the images as needed.
-
-## R code
-
-Finally, it were showed a source of Calib4.R[(4)](#reference). 
-```markdown
-#########################################################################
 calibR4<- function(
     input=input,
     sigma=c(1,2,3,.68,.95,.99,"1s","2s","3s","1sigma","2sigma","3sigma"),
@@ -540,13 +484,3 @@ calibR4<- function(
   beep(8)
   invisible(d1)
 }
-################################################################################
-```
-## Reference
-
-  - Intcal package in R (2022). https://cran.r-project.org/web/packages/IntCal/index.html
-  - Stuiver, M., & Reimer, P. J. (1993). EXTENDED 14C DATA BASE AND REVISED CALIB 3.014C AGE CALIBRATION PROGRAM. Radiocarbon, 35(1), 215–230. https://doi.org/10.14210/bjast.v17.n2.pNB5-8
-  - Guiñez, M., Valdés, J., Sifeddine, A., Boussafir, M., & Dávila, P. M. (2014). Anchovy population and ocean-climatic fluctuations in the Humboldt Current System during the last 700 years and their implications. Palaeogeography, Palaeoclimatology, Palaeoecology, 415, 210–224. https://doi.org/10.1016/j.palaeo.2014.08.026
-  - https://github.com/jasb3110/CalibR/blob/02cb2fef4994c204081e9a7e28c4e1e55471d8ce/calib.R  - version 1
-  - https://github.com/jasb3110/CalibR/blob/4852cd55965a5c007e0de92ed9fe4c5273570682/calib2.R - version 2
-  - https://github.com/jasb3110/CalibR/blob/45dfc25c6e44d5bb47df28493aa66481c0ccbc4a/calib3.R - version 3 - Last version
