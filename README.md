@@ -550,4 +550,4 @@ calibR4<- function(
   - https://github.com/jasb3110/CalibR/blob/02cb2fef4994c204081e9a7e28c4e1e55471d8ce/calib.R  - version 1
   - https://github.com/jasb3110/CalibR/blob/4852cd55965a5c007e0de92ed9fe4c5273570682/calib2.R - version 2
   - https://github.com/jasb3110/CalibR/blob/45dfc25c6e44d5bb47df28493aa66481c0ccbc4a/calib3.R - version 3
-  - https://github.com/jasb3110/CalibR/blob/aa92074c526796273e4a2e4b44e8728be027d5bc/calib4.R - version 4 - Last version
+  - https://github.com/jasb3110/CalibR/blob/e8c32d088cd90f3215f4615d3bac1863759617ab/calib4.R - version 4 - Last version
