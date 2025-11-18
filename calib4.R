@@ -421,9 +421,9 @@ calibR4<- function(
     gridExtra::grid.table(dd, rows=NULL, theme=myt); dev.off()
     
     if (isTRUE(csv_semicolon)){
-      utils::write.csv2(d1, file=file.path(lab_dir, paste0(sanitize_name(lab),".calibrated.csv")), row.names=FALSE)
+      utils::write.csv2(dd, file=file.path(lab_dir, paste0(sanitize_name(lab),".calibrated.csv")), row.names=FALSE)
     } else {
-      utils::write.csv(d1,  file=file.path(lab_dir, paste0(sanitize_name(lab),".calibrated.csv")),  row.names=FALSE)
+      utils::write.csv(dd,  file=file.path(lab_dir, paste0(sanitize_name(lab),".calibrated.csv")),  row.names=FALSE)
     }
     
     if (isTRUE(table_plot) && interactive()){

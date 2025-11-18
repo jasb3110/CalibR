@@ -1,6 +1,6 @@
 #prueba calibR
 setwd("E:/Pepe/2022/Github/CalibR")
-source("calib3.R")#Call up a function
+source("calib4.R")#Call up a function
 #INPUT
 #data is gonna calibrate
 d2=read.csv("mejillones2.csv",sep=";",dec=".",header = TRUE)
